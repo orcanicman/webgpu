@@ -2,12 +2,7 @@ export class QuadGeometry {
 	public vertices: number[];
 	public inidices: number[];
 
-	constructor() {
-		const x = 300;
-		const y = 250;
-		const w = 80;
-		const h = 80;
-
+	constructor(x: number, y: number, w: number, h: number) {
 		/**
 		 * FYI, texture coordinates are drawn from the top left.
 		 * This is different than the coordinate system i am using.
