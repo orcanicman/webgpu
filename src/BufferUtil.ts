@@ -12,6 +12,19 @@ export class BufferUtil {
 		return buffer;
 	}
 
+	public static createResolutionBuffer(device: GPUDevice, data: Float32Array): GPUBuffer {
+		const buffer = device.createBuffer({
+			size: data.byteLength,
+			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+			mappedAtCreation: true,
+		});
+
+		new Float32Array(buffer.getMappedRange()).set(data);
+		buffer.unmap();
+
+		return buffer;
+	}
+
 	public static createIndexBuffer(device: GPUDevice, data: Uint16Array): GPUBuffer {
 		const buffer = device.createBuffer({
 			size: data.byteLength,

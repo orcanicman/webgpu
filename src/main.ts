@@ -112,7 +112,19 @@ const initializeShaderStates = (
 };
 
 const initializeLayouts = (device: GPUDevice) => {
+	const resolutionBindGroupLayout = device.createBindGroupLayout({
+		label: "ResolutionBindGroupLayout",
+		entries: [
+			{
+				binding: 0,
+				visibility: GPUShaderStage.VERTEX,
+				buffer: {},
+			},
+		],
+	});
+
 	const textureBindGroupLayout = device.createBindGroupLayout({
+		label: "TextureBindGroupLayout",
 		entries: [
 			{
 				binding: 0,
@@ -128,24 +140,38 @@ const initializeLayouts = (device: GPUDevice) => {
 	});
 
 	const pipelineLayout = device.createPipelineLayout({
-		bindGroupLayouts: [textureBindGroupLayout],
+		bindGroupLayouts: [resolutionBindGroupLayout, textureBindGroupLayout],
 	});
 
-	return { textureBindGroupLayout, pipelineLayout };
+	return { textureBindGroupLayout, pipelineLayout, resolutionBindGroupLayout };
 };
 
 const createBindGroupAndPipeline = (
 	device: GPUDevice,
 	layouts: {
 		textureBindGroupLayout: GPUBindGroupLayout;
+		resolutionBindGroupLayout: GPUBindGroupLayout;
 		pipelineLayout: GPUPipelineLayout;
 	},
 	states: {
 		vertexState: GPUVertexState;
 		fragmentState: GPUFragmentState;
 	},
+	buffers: {
+		resolutionBuffer: GPUBuffer;
+	},
 	texture: Texture,
 ) => {
+	const resolutionBindGroup = device.createBindGroup({
+		layout: layouts.resolutionBindGroupLayout,
+		entries: [
+			{
+				binding: 0,
+				resource: { buffer: buffers.resolutionBuffer },
+			},
+		],
+	});
+
 	const textureBindGroup = device.createBindGroup({
 		layout: layouts.textureBindGroupLayout,
 		entries: [
@@ -169,7 +195,7 @@ const createBindGroupAndPipeline = (
 		},
 	});
 
-	return { textureBindGroup, renderPipeline };
+	return { resolutionBindGroup, textureBindGroup, renderPipeline };
 };
 
 /**
@@ -178,7 +204,12 @@ const createBindGroupAndPipeline = (
  * @param context GPUCanvasContext
  * @param device GPUDevice
 //  */
-const initializeModel = (device: GPUDevice, format: GPUTextureFormat, texture: Texture) => {
+const initializeModel = (
+	device: GPUDevice,
+	format: GPUTextureFormat,
+	texture: Texture,
+	resolutionBuffer: GPUBuffer,
+) => {
 	const { vertexBufferLayout } = initializeBufferLayouts();
 
 	const shaderModule = device.createShaderModule({
@@ -188,16 +219,17 @@ const initializeModel = (device: GPUDevice, format: GPUTextureFormat, texture: T
 
 	const { vertexState, fragmentState } = initializeShaderStates(shaderModule, format, [vertexBufferLayout]);
 
-	const { textureBindGroupLayout, pipelineLayout } = initializeLayouts(device);
+	const { textureBindGroupLayout, pipelineLayout, resolutionBindGroupLayout } = initializeLayouts(device);
 
-	const { renderPipeline, textureBindGroup } = createBindGroupAndPipeline(
+	const { renderPipeline, resolutionBindGroup, textureBindGroup } = createBindGroupAndPipeline(
 		device,
-		{ pipelineLayout, textureBindGroupLayout },
+		{ pipelineLayout, textureBindGroupLayout, resolutionBindGroupLayout },
 		{ fragmentState, vertexState },
+		{ resolutionBuffer },
 		texture,
 	);
 
-	return { renderPipeline, textureBindGroup };
+	return { renderPipeline, bindGroups: { resolutionBindGroup, textureBindGroup } };
 };
 
 /**
@@ -207,12 +239,17 @@ const render = (
 	device: GPUDevice,
 	context: GPUCanvasContext,
 	renderPipeline: GPURenderPipeline,
-	textureBindGroup: GPUBindGroup,
+	bindGroups: {
+		textureBindGroup: GPUBindGroup;
+		resolutionBindGroup: GPUBindGroup;
+	},
 	buffers: {
 		vertexBuffer: GPUBuffer;
 		indexBuffer: GPUBuffer;
 	},
 ) => {
+	// update resolution ?
+
 	const encoder = device.createCommandEncoder();
 
 	const renderPass = encoder.beginRenderPass({
@@ -230,7 +267,8 @@ const render = (
 	renderPass.setPipeline(renderPipeline);
 	renderPass.setIndexBuffer(buffers.indexBuffer, "uint16");
 	renderPass.setVertexBuffer(0, buffers.vertexBuffer);
-	renderPass.setBindGroup(0, textureBindGroup);
+	renderPass.setBindGroup(0, bindGroups.resolutionBindGroup);
+	renderPass.setBindGroup(1, bindGroups.textureBindGroup);
 	renderPass.drawIndexed(6);
 	renderPass.end();
 	device.queue.submit([encoder.finish()]);
@@ -238,14 +276,7 @@ const render = (
 
 /**
  * TODO
- * 1. ✅ Create vertexBufferLayout
- * 2. ✅ Load in the shadermodule
- * 3. ✅ Create a render pipeline with the loaded shadermodule (add vertexBufferLayout to the vertex.)
- * 4. ✅ Make a buffer with the byteLength of my desired GRID (can be screen width * screen height.)
- * 5. ✅ TODO: Add textures ✨✨
- * 6. ✅ Make a bindGroup
- *
- * 7. ✅ Render
+ * Clean up code (split into multiple components)
  */
 const main = async () => {
 	const [context, device, format] = await initializeDevice();
@@ -254,15 +285,26 @@ const main = async () => {
 
 	const geometryData = new QuadGeometry();
 
-	const { renderPipeline, textureBindGroup } = initializeModel(device, format, texture);
+	const resolutionBuffer = BufferUtil.createResolutionBuffer(
+		device,
+		new Float32Array([context.canvas.width, context.canvas.height]),
+	);
+
+	const { renderPipeline, bindGroups } = initializeModel(device, format, texture, resolutionBuffer);
 
 	const vertexBuffer = BufferUtil.createVertexBuffer(device, new Float32Array(geometryData.vertices));
 	const indexBuffer = BufferUtil.createIndexBuffer(device, new Uint16Array(geometryData.inidices));
 
-	render(device, context, renderPipeline, textureBindGroup, {
-		vertexBuffer,
-		indexBuffer,
-	});
+	render(
+		device,
+		context,
+		renderPipeline,
+		{ resolutionBindGroup: bindGroups.resolutionBindGroup, textureBindGroup: bindGroups.textureBindGroup },
+		{
+			vertexBuffer,
+			indexBuffer,
+		},
+	);
 };
 
 main();
