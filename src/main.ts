@@ -239,6 +239,7 @@ const render = (
 	device: GPUDevice,
 	context: GPUCanvasContext,
 	renderPipeline: GPURenderPipeline,
+	geometryData: QuadGeometry,
 	bindGroups: {
 		textureBindGroup: GPUBindGroup;
 		resolutionBindGroup: GPUBindGroup;
@@ -269,7 +270,7 @@ const render = (
 	renderPass.setVertexBuffer(0, buffers.vertexBuffer);
 	renderPass.setBindGroup(0, bindGroups.resolutionBindGroup);
 	renderPass.setBindGroup(1, bindGroups.textureBindGroup);
-	renderPass.drawIndexed(6);
+	renderPass.drawIndexed(geometryData.inidices.length);
 	renderPass.end();
 	device.queue.submit([encoder.finish()]);
 };
@@ -299,6 +300,7 @@ const main = async () => {
 		device,
 		context,
 		renderPipeline,
+		geometryData,
 		{ resolutionBindGroup: bindGroups.resolutionBindGroup, textureBindGroup: bindGroups.textureBindGroup },
 		{
 			vertexBuffer,
