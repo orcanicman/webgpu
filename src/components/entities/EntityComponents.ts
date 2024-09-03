@@ -39,6 +39,11 @@ export class SpriteComponent implements Component {
 	constructor(public source: keyof typeof Content) {}
 }
 
+export class CameraFocusComponent implements Component {
+	readonly type = "camera_focus";
+	constructor() {}
+}
+
 export class VelocityComponent implements Component {
 	readonly type = "velocity";
 	constructor(

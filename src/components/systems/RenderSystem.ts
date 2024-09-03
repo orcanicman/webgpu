@@ -3,9 +3,15 @@ import { getComponent } from "../../helpers/getComponent";
 import { QuadGeometry } from "../../helpers/StaticGeometry";
 import { Texture } from "../../Texture";
 import { System, Entity } from "../../types/ECS";
-import { PositionComponent, DimensionsComponent, SpriteComponent } from "../entities/EntityComponents";
+import {
+	PositionComponent,
+	DimensionsComponent,
+	SpriteComponent,
+	CameraFocusComponent,
+} from "../entities/EntityComponents";
 import CustomShaders from "../../wgsl/shaders.wgsl";
 import { BoundingBox } from "../../types/BoundingBox";
+import { Vector2 } from "../../types/Vector2";
 
 export class RenderSystem implements System {
 	device!: GPUDevice;
@@ -14,12 +20,17 @@ export class RenderSystem implements System {
 
 	renderPass!: GPURenderPassEncoder;
 
+	// todo: remove/refactor
+	cameraPosition!: Vector2;
+
 	constructor(private context: GPUCanvasContext) {}
 
 	public initialize = async () => {
 		const { device } = await this.initializeDevice();
 
 		await Content.initialize(device);
+
+		this.cameraPosition = { x: 0, y: 0 };
 
 		this.device = device;
 	};
@@ -45,13 +56,30 @@ export class RenderSystem implements System {
 			const positionComponent = getComponent<PositionComponent>(entity, "position");
 			const dimensionsComponent = getComponent<DimensionsComponent>(entity, "dimensions");
 			const spriteComponent = getComponent<SpriteComponent>(entity, "sprite");
+			const cameraFocusComponent = getComponent<CameraFocusComponent>(entity, "camera_focus");
 
 			// Don't draw anything if entity does not have a position or dimensions.
 			if (!positionComponent || !dimensionsComponent || !spriteComponent) continue;
 
+			if (cameraFocusComponent) {
+				const cameraTargetPosition = {
+					x: positionComponent.position.x - this.context.canvas.width / 2,
+					y: positionComponent.position.y - this.context.canvas.height / 2,
+				};
+
+				this.cameraPosition.x += (cameraTargetPosition.x - this.cameraPosition.x) * 0.05;
+				this.cameraPosition.y += (cameraTargetPosition.y - this.cameraPosition.y) * 0.05;
+			}
+
 			const resolutionBuffer = BufferUtil.createResolutionBuffer(
 				this.device,
 				new Float32Array([this.context.canvas.width, this.context.canvas.height]),
+			);
+
+			// TODO: To be removed/updated/refactored idc should probably be an entity...
+			const cameraBuffer = BufferUtil.createCameraBuffer(
+				this.device,
+				new Float32Array([this.cameraPosition.x, this.cameraPosition.y]),
 			);
 
 			this.drawSprite(
@@ -61,6 +89,7 @@ export class RenderSystem implements System {
 					...dimensionsComponent.dimensions,
 				},
 				resolutionBuffer,
+				cameraBuffer,
 			);
 		}
 
@@ -68,8 +97,13 @@ export class RenderSystem implements System {
 		this.device.queue.submit([encoder.finish()]);
 	};
 
-	public drawSprite = (texture: Texture, boundingBox: BoundingBox, resolutionBuffer: GPUBuffer) => {
-		const spritePipepline = SpritePipeline.create(this.device, texture, resolutionBuffer);
+	public drawSprite = (
+		texture: Texture,
+		boundingBox: BoundingBox,
+		resolutionBuffer: GPUBuffer,
+		cameraBuffer: GPUBuffer,
+	) => {
+		const spritePipepline = SpritePipeline.create(this.device, texture, resolutionBuffer, cameraBuffer);
 
 		const geometryData = new QuadGeometry(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
 
@@ -81,7 +115,8 @@ export class RenderSystem implements System {
 		this.renderPass.setVertexBuffer(0, vertexBuffer);
 
 		this.renderPass.setBindGroup(0, spritePipepline.resolutionBindGroup);
-		this.renderPass.setBindGroup(1, spritePipepline.textureBindGroup);
+		this.renderPass.setBindGroup(1, spritePipepline.cameraBindGroup);
+		this.renderPass.setBindGroup(2, spritePipepline.textureBindGroup);
 		this.renderPass.drawIndexed(geometryData.inidices.length);
 	};
 
@@ -126,14 +161,20 @@ export class SpritePipeline {
 	public pipeline!: GPURenderPipeline;
 	public textureBindGroup!: GPUBindGroup;
 	public resolutionBindGroup!: GPUBindGroup;
+	public cameraBindGroup!: GPUBindGroup;
 
-	public static create(device: GPUDevice, texture: Texture, projectionViewMatrixBuffer: GPUBuffer): SpritePipeline {
+	public static create(
+		device: GPUDevice,
+		texture: Texture,
+		resolutionBuffer: GPUBuffer,
+		cameraBuffer: GPUBuffer,
+	): SpritePipeline {
 		const pipeline = new SpritePipeline();
-		pipeline.initialize(device, texture, projectionViewMatrixBuffer);
+		pipeline.initialize(device, texture, resolutionBuffer, cameraBuffer);
 		return pipeline;
 	}
 
-	public initialize(device: GPUDevice, texture: Texture, resolutionBuffer: GPUBuffer): void {
+	public initialize(device: GPUDevice, texture: Texture, resolutionBuffer: GPUBuffer, cameraBuffer: GPUBuffer): void {
 		const shaderModule = device.createShaderModule({
 			code: CustomShaders.code,
 			label: "Shaders.wgsl",
@@ -143,17 +184,20 @@ export class SpritePipeline {
 
 		const { vertexState, fragmentState } = this.initializeShaderStates(shaderModule, [vertexBufferLayout]);
 
-		const { textureBindGroupLayout, pipelineLayout, resolutionBindGroupLayout } = this.initializeLayouts(device);
+		const { textureBindGroupLayout, pipelineLayout, resolutionBindGroupLayout, cameraBindGroupLayout } =
+			this.initializeLayouts(device);
 
-		const { renderPipeline, resolutionBindGroup, textureBindGroup } = this.createBindGroupAndPipeline(
-			device,
-			{ pipelineLayout, textureBindGroupLayout, resolutionBindGroupLayout },
-			{ fragmentState, vertexState },
-			{ resolutionBuffer },
-			texture,
-		);
+		const { renderPipeline, resolutionBindGroup, textureBindGroup, cameraBindGroup } =
+			this.createBindGroupAndPipeline(
+				device,
+				{ pipelineLayout, textureBindGroupLayout, resolutionBindGroupLayout, cameraBindGroupLayout },
+				{ fragmentState, vertexState },
+				{ resolutionBuffer, cameraBuffer },
+				texture,
+			);
 
 		this.resolutionBindGroup = resolutionBindGroup;
+		this.cameraBindGroup = cameraBindGroup;
 		this.textureBindGroup = textureBindGroup;
 		this.pipeline = renderPipeline;
 	}
@@ -231,6 +275,17 @@ export class SpritePipeline {
 			],
 		});
 
+		const cameraBindGroupLayout = device.createBindGroupLayout({
+			label: "ResolutionBindGroupLayout",
+			entries: [
+				{
+					binding: 0,
+					visibility: GPUShaderStage.VERTEX,
+					buffer: {},
+				},
+			],
+		});
+
 		const textureBindGroupLayout = device.createBindGroupLayout({
 			label: "TextureBindGroupLayout",
 			entries: [
@@ -248,10 +303,10 @@ export class SpritePipeline {
 		});
 
 		const pipelineLayout = device.createPipelineLayout({
-			bindGroupLayouts: [resolutionBindGroupLayout, textureBindGroupLayout],
+			bindGroupLayouts: [resolutionBindGroupLayout, cameraBindGroupLayout, textureBindGroupLayout],
 		});
 
-		return { textureBindGroupLayout, pipelineLayout, resolutionBindGroupLayout };
+		return { textureBindGroupLayout, pipelineLayout, resolutionBindGroupLayout, cameraBindGroupLayout };
 	};
 
 	private createBindGroupAndPipeline = (
@@ -259,6 +314,7 @@ export class SpritePipeline {
 		layouts: {
 			textureBindGroupLayout: GPUBindGroupLayout;
 			resolutionBindGroupLayout: GPUBindGroupLayout;
+			cameraBindGroupLayout: GPUBindGroupLayout;
 			pipelineLayout: GPUPipelineLayout;
 		},
 		states: {
@@ -267,6 +323,7 @@ export class SpritePipeline {
 		},
 		buffers: {
 			resolutionBuffer: GPUBuffer;
+			cameraBuffer: GPUBuffer;
 		},
 		texture: Texture,
 	) => {
@@ -276,6 +333,16 @@ export class SpritePipeline {
 				{
 					binding: 0,
 					resource: { buffer: buffers.resolutionBuffer },
+				},
+			],
+		});
+
+		const cameraBindGroup = device.createBindGroup({
+			layout: layouts.cameraBindGroupLayout,
+			entries: [
+				{
+					binding: 0,
+					resource: { buffer: buffers.cameraBuffer },
 				},
 			],
 		});
@@ -303,6 +370,6 @@ export class SpritePipeline {
 			},
 		});
 
-		return { resolutionBindGroup, textureBindGroup, renderPipeline };
+		return { resolutionBindGroup, cameraBindGroup, textureBindGroup, renderPipeline };
 	};
 }

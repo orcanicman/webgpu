@@ -11,21 +11,25 @@ struct VertexOutput {
 }
 
 @group(0) @binding(0) var<uniform> resolution: vec2f;
+@group(1) @binding(0) var<uniform> camera_position: vec2f;
 
 
 fn to_clip_space(position: vec2f) -> vec2<f32> {
+    // Add camera
+    let converted_position = position - camera_position;
+
     // convert the position from pixels to a 0.0 to 1.0 value
-    let zeroToOne = position / resolution;
+    let zero_to_one = converted_position / resolution;
+    // let zero_to_one = position / resolution;
 
     // convert from 0 <-> 1 to 0 <-> 2
-    let zeroToTwo = zeroToOne * 2.0;
+    let zero_to_two = zero_to_one * 2.0;
 
     // covert from 0 <-> 2 to -1 <-> +1 (clip space)
-    let clipSpace = zeroToTwo - 1.0;
+    let clip_space = zero_to_two - 1.0;
 
     // results into x,y=0 is at the bottom left.
-
-    return clipSpace;
+    return clip_space;
 }
 
 @vertex
@@ -39,8 +43,8 @@ fn vertex_main(input: VertexInput) -> VertexOutput {
     return output;
 }
 
-@group(1) @binding(0) var tex_sampler: sampler;
-@group(1) @binding(1) var tex: texture_2d<f32>;
+@group(2) @binding(0) var tex_sampler: sampler;
+@group(2) @binding(1) var tex: texture_2d<f32>;
 
 @fragment
 fn fragment_main(input: VertexOutput) -> @location(0) vec4f {

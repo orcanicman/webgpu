@@ -1,4 +1,4 @@
-# TODO:
+# TODO - Engine:
 
 <!--
 Done : ✅
@@ -11,5 +11,20 @@ To do: ❌
 | Collision objects      | ✅    |
 | Textures               | ✅    |
 | Multiple textures      | ✅    |
-| Camera                 | ❌    |
+| Camera                 | ✅    |
 | Animations             | ❌    |
+
+# TODO - Gameplay mechanics:
+
+| Item                                        | Done? |
+| ------------------------------------------- | ----- |
+| Wall jumps                                  | ❌    |
+| Sprinting with cooldown                     | ❌    |
+| Power up boxes (faster shoes, higher jumps) | ❌    |
+
+# TODO - Assets:
+
+| Item              | Done? |
+| ----------------- | ----- |
+| Player testmodel  | ✅    |
+| Player animations | ❌    |

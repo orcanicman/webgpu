@@ -1,5 +1,6 @@
 import { CollisionSystem } from "./components/systems/CollisionSystem";
 import {
+	CameraFocusComponent,
 	ColliderComponent,
 	ControllableComponent,
 	DimensionsComponent,
@@ -47,20 +48,22 @@ const main = async () => {
 			new ColliderComponent("rigid"),
 			new SpriteComponent("uvTestTexture"),
 		]),
-		new DefaultEntity("0", [
+
+		new DefaultEntity("1", [
 			new PositionComponent({ x: 0, y: 0 }),
 			new DimensionsComponent({ height: 50, width: 250 }),
 			new ColliderComponent("rigid"),
 			new SpriteComponent("uvTestTexture"),
 		]),
 
-		new DefaultEntity("1", [
+		new DefaultEntity("Player", [
 			new PositionComponent({ x: 100, y: 300 }),
 			new DimensionsComponent({ width: 50, height: 75 }),
 			new VelocityComponent({ x: 0, y: 0 }, { x: 750, y: 500 }),
 			new ControllableComponent(1000),
 			new GravityComponent(80),
 			new ColliderComponent("dynamic"),
+			new CameraFocusComponent(),
 			new SpriteComponent("playerTexture"),
 		]),
 	];
