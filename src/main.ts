@@ -5,6 +5,7 @@ import {
 	DimensionsComponent,
 	GravityComponent,
 	PositionComponent,
+	SpriteComponent,
 	VelocityComponent,
 } from "./components/entities/EntityComponents";
 import { DefaultEntity } from "./components/entities/Entities";
@@ -44,16 +45,17 @@ const main = async () => {
 			new PositionComponent({ x: 75, y: 530 }),
 			new DimensionsComponent({ height: 25, width: 50 }),
 			new ColliderComponent("rigid"),
+			new SpriteComponent("uvTestTexture"),
 		]),
 
 		new DefaultEntity("1", [
 			new PositionComponent({ x: 100, y: 300 }),
-			new DimensionsComponent({ width: 10, height: 25 }),
+			new DimensionsComponent({ width: 50, height: 75 }),
 			new VelocityComponent({ x: 0, y: 0 }, { x: 750, y: 500 }),
 			new ControllableComponent(1000),
 			new GravityComponent(80),
 			new ColliderComponent("dynamic"),
-			// new SpriteComponent(await loadImageBitmap("")),
+			new SpriteComponent("playerTexture"),
 		]),
 	];
 

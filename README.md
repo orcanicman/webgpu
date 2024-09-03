@@ -10,6 +10,6 @@ To do: ❌
 | Controllable character | ✅    |
 | Collision objects      | ✅    |
 | Textures               | ✅    |
+| Multiple textures      | ✅    |
 | Camera                 | ❌    |
-| Multiple textures      | ❌    |
 | Animations             | ❌    |

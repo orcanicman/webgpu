@@ -1,6 +1,7 @@
 import { Dimensions2D } from "../../types/Dimensions2D";
 import { Component } from "../../types/ECS";
 import { Vector2 } from "../../types/Vector2";
+import { Content } from "../systems/RenderSystem";
 
 export class ColliderComponent implements Component {
 	readonly type = "collider";
@@ -35,7 +36,7 @@ export class PositionComponent implements Component {
 
 export class SpriteComponent implements Component {
 	readonly type = "sprite";
-	constructor(public source: ImageBitmap) {}
+	constructor(public source: keyof typeof Content) {}
 }
 
 export class VelocityComponent implements Component {
