@@ -47,6 +47,12 @@ const main = async () => {
 			new ColliderComponent("rigid"),
 			new SpriteComponent("uvTestTexture"),
 		]),
+		new DefaultEntity("0", [
+			new PositionComponent({ x: 0, y: 0 }),
+			new DimensionsComponent({ height: 50, width: 250 }),
+			new ColliderComponent("rigid"),
+			new SpriteComponent("uvTestTexture"),
+		]),
 
 		new DefaultEntity("1", [
 			new PositionComponent({ x: 100, y: 300 }),
