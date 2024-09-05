@@ -1,5 +1,14 @@
 export type Component = {
-	type: "position" | "dimensions" | "velocity" | "controllable" | "gravity" | "collider" | "sprite" | "camera_focus";
+	type:
+		| "position"
+		| "dimensions"
+		| "velocity"
+		| "controllable"
+		| "gravity"
+		| "collider"
+		| "sprite"
+		| "camera_focus"
+		| "animation";
 };
 
 export type Entity = {

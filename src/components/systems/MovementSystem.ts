@@ -148,6 +148,6 @@ export class MovementSystem implements System {
 	}
 
 	jump(velocityComponent: VelocityComponent) {
-		velocityComponent.velocity.y = 150;
+		velocityComponent.velocity.y = 1000;
 	}
 }

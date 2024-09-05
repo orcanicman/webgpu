@@ -51,20 +51,20 @@ const main = async () => {
 
 		new DefaultEntity("1", [
 			new PositionComponent({ x: 0, y: 0 }),
-			new DimensionsComponent({ height: 50, width: 250 }),
+			new DimensionsComponent({ height: 300, width: 600 }),
 			new ColliderComponent("rigid"),
 			new SpriteComponent("uvTestTexture"),
 		]),
 
 		new DefaultEntity("Player", [
-			new PositionComponent({ x: 100, y: 300 }),
+			new PositionComponent({ x: 200, y: 300 }),
 			new DimensionsComponent({ width: 50, height: 75 }),
-			new VelocityComponent({ x: 0, y: 0 }, { x: 750, y: 500 }),
-			new ControllableComponent(1000),
-			new GravityComponent(80),
+			new VelocityComponent({ x: 0, y: 0 }, { x: 2000, y: 5000 }),
+			new ControllableComponent(10000),
+			new GravityComponent(1000),
 			new ColliderComponent("dynamic"),
 			new CameraFocusComponent(),
-			new SpriteComponent("playerTexture"),
+			new SpriteComponent("redHitbox"),
 		]),
 	];
 

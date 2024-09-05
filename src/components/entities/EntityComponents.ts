@@ -1,3 +1,5 @@
+import { Texture } from "../../Texture";
+import { Animation, AnimationSheet } from "../../types/Animation";
 import { Dimensions2D } from "../../types/Dimensions2D";
 import { Component } from "../../types/ECS";
 import { Vector2 } from "../../types/Vector2";
@@ -37,6 +39,21 @@ export class PositionComponent implements Component {
 export class SpriteComponent implements Component {
 	readonly type = "sprite";
 	constructor(public source: keyof typeof Content) {}
+}
+
+export class AnimationPoolComponent implements Component {
+	readonly type = "animation";
+
+	currentFrame: number = 0;
+	currentAnimation?: Animation;
+
+	constructor(
+		public animations: AnimationSheet[],
+		/**
+		 * Time in ms
+		 */
+		public timePerFrame = 0,
+	) {}
 }
 
 export class CameraFocusComponent implements Component {

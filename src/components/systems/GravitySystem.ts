@@ -15,7 +15,10 @@ export class GravitySystem implements System {
 
 			if (!gravityComponent || !velocityComponent) continue;
 
-			velocityComponent.velocity.y -= GRAVITY * gravityComponent.mass * (timePassed / 1000);
+			const newVelocity = velocityComponent.velocity.y - GRAVITY * gravityComponent.mass * (timePassed / 1000);
+			if (newVelocity <= velocityComponent.maxVelocity.y * -1) {
+				velocityComponent.velocity.y = velocityComponent.maxVelocity.y * -1;
+			} else velocityComponent.velocity.y = newVelocity;
 		}
 	};
 }

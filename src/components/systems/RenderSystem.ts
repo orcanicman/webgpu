@@ -150,10 +150,19 @@ export class RenderSystem implements System {
 export class Content {
 	public static uvTestTexture: Texture;
 	public static playerTexture: Texture;
+	public static redTexture: Texture;
+	public static redHitbox: Texture;
+	public static playerAnimationSheet: Texture;
 
 	public static async initialize(device: GPUDevice) {
 		this.playerTexture = await Texture.createTextureFromURL(device, "/src/assets/penis.png");
+		this.redHitbox = await Texture.createTextureFromURL(device, "/src/assets/red_hitbox.png");
+		this.redTexture = await Texture.createTextureFromURL(device, "/src/assets/red_16x32.png");
 		this.uvTestTexture = await Texture.createTextureFromURL(device, "/src/assets/uv_test.png");
+		this.playerAnimationSheet = await Texture.createTextureFromURL(
+			device,
+			"/src/assets/Prototype-character/AnimationSheet.png",
+		);
 	}
 }
 
