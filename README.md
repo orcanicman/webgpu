@@ -14,6 +14,18 @@ To do: ❌
 | Camera                 | ✅    |
 | Animations             | ❌    |
 
+# TODO - Game engine design:
+
+| Item               | Done? |
+| ------------------ | ----- |
+| "Camera Dead-zone" | ❌    |
+
+# TODO - Optimalizations:
+
+| Item                                                  | Done? |
+| ----------------------------------------------------- | ----- |
+| Batch multiple entities together, decrease draw call. | ❌    |
+
 # TODO - Gameplay mechanics:
 
 | Item                                        | Done? |
