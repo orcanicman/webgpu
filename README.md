@@ -12,7 +12,7 @@ To do: ❌
 | Textures               | ✅    |
 | Multiple textures      | ✅    |
 | Camera                 | ✅    |
-| Animations             | ❌    |
+| Animations             | ✅    |
 
 # TODO - Game engine design:
 
