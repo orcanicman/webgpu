@@ -36,7 +36,8 @@ To do: ❌
 
 # TODO - Assets:
 
-| Item              | Done? |
-| ----------------- | ----- |
-| Player testmodel  | ✅    |
-| Player animations | ❌    |
+| Item                   | Done? |
+| ---------------------- | ----- |
+| Player testmodel       | ✅    |
+| Player model prototype | ❌    |
+| Player animations      | ❌    |
