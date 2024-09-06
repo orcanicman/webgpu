@@ -1,15 +1,20 @@
-import { ControllableComponent, PositionComponent, VelocityComponent } from "../entities/EntityComponents";
+import {
+	AnimationComponent,
+	ControllableComponent,
+	PositionComponent,
+	VelocityComponent,
+} from "../entities/EntityComponents";
 import { MovementKeys } from "../../config/MovementKeys";
 import { getComponent } from "../../helpers/getComponent";
 import { Entity, System } from "../../types/ECS";
 
 export class MovementSystem implements System {
-	constructor(public window: Window) {
-		this.init();
-	}
+	constructor(public window: Window) {}
 
 	initialize = async () => {
-		console.log("Movement system initialized.");
+		// Will cause a memory leak when multiple movement systems are made. Too bad!
+		this.window.addEventListener("keydown", this.handleKeyDown);
+		this.window.addEventListener("keyup", this.handleKeyUp);
 	};
 
 	keyboardState: Record<MovementKeys, boolean> = {
@@ -40,27 +45,22 @@ export class MovementSystem implements System {
 		this.keyboardState[key] = state;
 	}
 
-	init = () => {
-		// Will cause a memory leak when multiple movement systems are made. Too bad!
-		this.window.addEventListener("keydown", this.handleKeyDown);
-		this.window.addEventListener("keyup", this.handleKeyUp);
-	};
-
 	update = (timePassed: number, entities: Entity[]) => {
 		for (const entity of entities) {
 			const controllableComponent = getComponent<ControllableComponent>(entity, "controllable");
 			const velocityComponent = getComponent<VelocityComponent>(entity, "velocity");
 			const positionComponent = getComponent<PositionComponent>(entity, "position");
+			const animationComponent = getComponent<AnimationComponent>(entity, "animation");
 
 			// Don't change anything if it's not supposed to be controlled
 			if (!controllableComponent || !positionComponent || !velocityComponent) continue;
 
 			// Update velocity accordingly
 			const velocityDelta = controllableComponent.speed * (timePassed / 1000);
-			this.updatePlayerVelocity(velocityDelta, velocityComponent);
+			this.hanldeKeyboardStates(velocityDelta, velocityComponent, animationComponent);
 
 			// Brake if letting go
-			this.handleBraking(velocityDelta, velocityComponent);
+			this.handleBraking(velocityDelta, velocityComponent, animationComponent);
 
 			// set old position
 			positionComponent.previousPosition.x = positionComponent.position.x.valueOf();
@@ -72,13 +72,31 @@ export class MovementSystem implements System {
 		}
 	};
 
-	updatePlayerVelocity(velocityDelta: number, velocityComponent: VelocityComponent) {
+	hanldeKeyboardStates(
+		velocityDelta: number,
+		velocityComponent: VelocityComponent,
+		animationComponent?: AnimationComponent,
+	) {
 		if (this.keyboardState.a) {
+			if (animationComponent) {
+				animationComponent.facingDirection = "left";
+
+				animationComponent.currentAnimation = animationComponent.animationSheet.animations.find(
+					(animation) => animation.name === "run",
+				)!;
+			}
 			velocityComponent.velocity.x -= velocityDelta;
 			this.limitVelocity("x", velocityComponent);
 		}
 
 		if (this.keyboardState.d) {
+			if (animationComponent) {
+				animationComponent.facingDirection = "right";
+
+				animationComponent.currentAnimation = animationComponent.animationSheet.animations.find(
+					(animation) => animation.name === "run",
+				)!;
+			}
 			velocityComponent.velocity.x += velocityDelta;
 			this.limitVelocity("x", velocityComponent);
 		}
@@ -86,20 +104,13 @@ export class MovementSystem implements System {
 		if (this.keyboardState[" "]) {
 			this.jump(velocityComponent);
 		}
-
-		// DEBUG:
-		// if (this.keyboardState.w) {
-		//   velocityComponent.velocity.y -= velocityDelta;
-		//   this.limitVelocity("y", velocityComponent);
-		// }
-
-		// if (this.keyboardState.s) {
-		//   velocityComponent.velocity.y += velocityDelta;
-		//   this.limitVelocity("y", velocityComponent);
-		// }
 	}
 
-	handleBraking(velocityDelta: number, velocityComponent: VelocityComponent) {
+	handleBraking(
+		velocityDelta: number,
+		velocityComponent: VelocityComponent,
+		animationComponent?: AnimationComponent,
+	) {
 		const brakingFactor = 3.5;
 
 		if (velocityComponent.velocity.x > 0 && !this.keyboardState.d) {
@@ -118,22 +129,13 @@ export class MovementSystem implements System {
 			}
 		}
 
-		// DEBUG:
-		// if (velocityComponent.velocity.y < 0 && !this.keyboardState.w) {
-		//   velocityComponent.velocity.y -= brakingFactor * velocityDelta;
-
-		//   if (velocityComponent.velocity.y < 0) {
-		//     velocityComponent.velocity.y = 0;
-		//   }
-		// }
-
-		// if (velocityComponent.velocity.y > 0 && !this.keyboardState.s) {
-		//   velocityComponent.velocity.y += brakingFactor * velocityDelta;
-
-		//   if (velocityComponent.velocity.y > 0) {
-		//     velocityComponent.velocity.y = 0;
-		//   }
-		// }
+		if (velocityComponent.velocity.x === 0) {
+			if (animationComponent) {
+				animationComponent.currentAnimation = animationComponent.animationSheet.animations.find(
+					(animation) => animation.name === "idle",
+				)!;
+			}
+		}
 	}
 
 	limitVelocity(axis: "x" | "y", velocityComponent: VelocityComponent) {

@@ -1,5 +1,4 @@
-import { Texture } from "../../Texture";
-import { Animation, AnimationSheet } from "../../types/Animation";
+import { AnimationSheet, PlayerAnimations } from "../../types/Animation";
 import { Dimensions2D } from "../../types/Dimensions2D";
 import { Component } from "../../types/ECS";
 import { Vector2 } from "../../types/Vector2";
@@ -38,21 +37,22 @@ export class PositionComponent implements Component {
 
 export class SpriteComponent implements Component {
 	readonly type = "sprite";
-	constructor(public source: keyof typeof Content) {}
+	constructor(public source: keyof (typeof Content)["textures"]) {}
 }
 
-export class AnimationPoolComponent implements Component {
+export class AnimationComponent implements Component {
 	readonly type = "animation";
 
-	currentFrame: number = 0;
-	currentAnimation?: Animation;
-
 	constructor(
-		public animations: AnimationSheet[],
+		public animationSheet: AnimationSheet<PlayerAnimations>,
 		/**
 		 * Time in ms
 		 */
-		public timePerFrame = 0,
+		public timePerFrame: number,
+		public currentAnimation: (typeof animationSheet)["animations"][number],
+		public currentFrame = 0,
+		public timePassed = 0,
+		public facingDirection: "right" | "left" = "right",
 	) {}
 }
 

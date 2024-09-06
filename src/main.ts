@@ -1,13 +1,9 @@
 import { CollisionSystem } from "./components/systems/CollisionSystem";
 import {
-	CameraFocusComponent,
 	ColliderComponent,
-	ControllableComponent,
 	DimensionsComponent,
-	GravityComponent,
 	PositionComponent,
 	SpriteComponent,
-	VelocityComponent,
 } from "./components/entities/EntityComponents";
 import { DefaultEntity } from "./components/entities/Entities";
 import { Game } from "./Game";
@@ -15,6 +11,8 @@ import { GravitySystem } from "./components/systems/GravitySystem";
 import { MovementSystem } from "./components/systems/MovementSystem";
 import { RenderSystem } from "./components/systems/RenderSystem";
 import { Entity, System } from "./types/ECS";
+import { Player } from "./components/entities/Player";
+import { AnimationSystem } from "./components/systems/AnimationSystem";
 
 /**
  * Creates a canvas instance onto the spefied `root` element and returns its webgpu context.
@@ -53,25 +51,17 @@ const main = async () => {
 			new PositionComponent({ x: 0, y: 0 }),
 			new DimensionsComponent({ height: 300, width: 600 }),
 			new ColliderComponent("rigid"),
-			new SpriteComponent("uvTestTexture"),
+			new SpriteComponent("redTexture"),
 		]),
 
-		new DefaultEntity("Player", [
-			new PositionComponent({ x: 200, y: 300 }),
-			new DimensionsComponent({ width: 50, height: 75 }),
-			new VelocityComponent({ x: 0, y: 0 }, { x: 2000, y: 5000 }),
-			new ControllableComponent(10000),
-			new GravityComponent(1000),
-			new ColliderComponent("dynamic"),
-			new CameraFocusComponent(),
-			new SpriteComponent("redHitbox"),
-		]),
+		new Player("Player"),
 	];
 
 	const systems: System[] = [
 		new MovementSystem(window),
 		new CollisionSystem(),
 		new GravitySystem(),
+		new AnimationSystem(),
 		new RenderSystem(context),
 	];
 

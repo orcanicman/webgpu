@@ -2,6 +2,9 @@ export class Texture {
 	constructor(
 		public texture: GPUTexture,
 		public sampler: GPUSampler,
+		public id: string,
+		public width: number,
+		public height: number,
 	) {}
 
 	/**
@@ -27,10 +30,10 @@ export class Texture {
 
 		const sampler = device.createSampler({
 			magFilter: "nearest",
-			minFilter: "linear",
+			minFilter: "nearest",
 		});
 
-		return new Texture(texture, sampler);
+		return new Texture(texture, sampler, image.src, image.width, image.height);
 	}
 
 	/**

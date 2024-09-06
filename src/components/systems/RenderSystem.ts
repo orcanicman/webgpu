@@ -8,10 +8,12 @@ import {
 	DimensionsComponent,
 	SpriteComponent,
 	CameraFocusComponent,
+	AnimationComponent,
 } from "../entities/EntityComponents";
 import CustomShaders from "../../wgsl/shaders.wgsl";
 import { BoundingBox } from "../../types/BoundingBox";
 import { Vector2 } from "../../types/Vector2";
+import { getPositionValues2d } from "../../utils/getDivisionWithRemainder";
 
 export class RenderSystem implements System {
 	device!: GPUDevice;
@@ -57,6 +59,7 @@ export class RenderSystem implements System {
 			const dimensionsComponent = getComponent<DimensionsComponent>(entity, "dimensions");
 			const spriteComponent = getComponent<SpriteComponent>(entity, "sprite");
 			const cameraFocusComponent = getComponent<CameraFocusComponent>(entity, "camera_focus");
+			const animationComponent = getComponent<AnimationComponent>(entity, "animation");
 
 			// Don't draw anything if entity does not have a position or dimensions.
 			if (!positionComponent || !dimensionsComponent || !spriteComponent) continue;
@@ -82,14 +85,54 @@ export class RenderSystem implements System {
 				new Float32Array([this.cameraPosition.x, this.cameraPosition.y]),
 			);
 
+			if (animationComponent && animationComponent.currentAnimation) {
+				const texture = Content["animationSheets"][animationComponent.animationSheet.name] as Texture;
+
+				const animationFrameSet = animationComponent.currentAnimation;
+
+				const { x, y } = getPositionValues2d(
+					texture.width,
+					animationFrameSet.width,
+					animationComponent.currentFrame,
+				);
+
+				const u0 =
+					(x + (animationComponent.facingDirection === "right" ? 0 : animationFrameSet.width)) /
+					texture.width;
+				const v0 = y / texture.height;
+
+				const u1 =
+					(x + (animationComponent.facingDirection === "right" ? animationFrameSet.width : 0)) /
+					texture.width;
+				const v1 = (y + animationFrameSet.height) / texture.height;
+
+				this.drawSprite(
+					texture,
+					{
+						...positionComponent.position,
+						...dimensionsComponent.dimensions,
+					},
+					resolutionBuffer,
+					cameraBuffer,
+					{
+						u: [u0, u1, u1, u0],
+						v: [v1, v1, v0, v0],
+					},
+				);
+			}
+
 			this.drawSprite(
-				Content[spriteComponent.source] as Texture,
+				Content["textures"][spriteComponent.source] as Texture,
 				{
 					...positionComponent.position,
 					...dimensionsComponent.dimensions,
 				},
 				resolutionBuffer,
 				cameraBuffer,
+				{
+					u: [0, 1, 1, 0],
+					v: [1, 1, 0, 0],
+				},
 			);
 		}
 
@@ -102,10 +145,11 @@ export class RenderSystem implements System {
 		boundingBox: BoundingBox,
 		resolutionBuffer: GPUBuffer,
 		cameraBuffer: GPUBuffer,
+		UV: { u: [number, number, number, number]; v: [number, number, number, number] },
 	) => {
 		const spritePipepline = SpritePipeline.create(this.device, texture, resolutionBuffer, cameraBuffer);
 
-		const geometryData = new QuadGeometry(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
+		const geometryData = new QuadGeometry(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height, UV);
 
 		const vertexBuffer = BufferUtil.createVertexBuffer(this.device, new Float32Array(geometryData.vertices));
 		const indexBuffer = BufferUtil.createIndexBuffer(this.device, new Uint16Array(geometryData.inidices));
@@ -148,21 +192,31 @@ export class RenderSystem implements System {
  * Loads in textures that will be used.
  */
 export class Content {
-	public static uvTestTexture: Texture;
-	public static playerTexture: Texture;
-	public static redTexture: Texture;
-	public static redHitbox: Texture;
-	public static playerAnimationSheet: Texture;
+	public static textures: {
+		uvTestTexture: Texture;
+		playerTexture: Texture;
+		redTexture: Texture;
+		redHitbox: Texture;
+	};
+
+	public static animationSheets: {
+		playerAnimationSheet: Texture;
+	};
 
 	public static async initialize(device: GPUDevice) {
-		this.playerTexture = await Texture.createTextureFromURL(device, "/src/assets/penis.png");
-		this.redHitbox = await Texture.createTextureFromURL(device, "/src/assets/red_hitbox.png");
-		this.redTexture = await Texture.createTextureFromURL(device, "/src/assets/red_16x32.png");
-		this.uvTestTexture = await Texture.createTextureFromURL(device, "/src/assets/uv_test.png");
-		this.playerAnimationSheet = await Texture.createTextureFromURL(
-			device,
-			"/src/assets/Prototype-character/AnimationSheet.png",
-		);
+		this.textures = {
+			playerTexture: await Texture.createTextureFromURL(device, "/src/assets/transparent_16x16.png"),
+			redHitbox: await Texture.createTextureFromURL(device, "/src/assets/red_hitbox.png"),
+			redTexture: await Texture.createTextureFromURL(device, "/src/assets/red_16x32.png"),
+			uvTestTexture: await Texture.createTextureFromURL(device, "/src/assets/uv_test.png"),
+		};
+
+		this.animationSheets = {
+			playerAnimationSheet: await Texture.createTextureFromURL(
+				device,
+				"/src/assets/Prototype-character/AnimationSheet.png",
+			),
+		};
 	}
 }
 
