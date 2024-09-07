@@ -3,7 +3,7 @@ import webpack from "webpack";
 import ESLintPlugin from "eslint-webpack-plugin";
 
 const config: webpack.Configuration = {
-	watch: true,
+	watch: false,
 	mode: "production",
 	entry: "./src/main.ts",
 	plugins: [

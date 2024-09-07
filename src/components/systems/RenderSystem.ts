@@ -205,16 +205,16 @@ export class Content {
 
 	public static async initialize(device: GPUDevice) {
 		this.textures = {
-			playerTexture: await Texture.createTextureFromURL(device, "/public/assets/transparent_16x16.png"),
-			redHitbox: await Texture.createTextureFromURL(device, "/public/assets/red_hitbox.png"),
-			redTexture: await Texture.createTextureFromURL(device, "/public/assets/red_16x32.png"),
-			uvTestTexture: await Texture.createTextureFromURL(device, "/public/assets/uv_test.png"),
+			playerTexture: await Texture.createTextureFromURL(device, "/assets/transparent_16x16.png"),
+			redHitbox: await Texture.createTextureFromURL(device, "/assets/red_hitbox.png"),
+			redTexture: await Texture.createTextureFromURL(device, "/assets/red_16x32.png"),
+			uvTestTexture: await Texture.createTextureFromURL(device, "/assets/uv_test.png"),
 		};
 
 		this.animationSheets = {
 			playerAnimationSheet: await Texture.createTextureFromURL(
 				device,
-				"/public/assets/Prototype-character/AnimationSheet.png",
+				"/assets/Prototype-character/AnimationSheet.png",
 			),
 		};
 	}
