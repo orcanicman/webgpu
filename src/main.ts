@@ -1,11 +1,4 @@
 import { CollisionSystem } from "./components/systems/CollisionSystem";
-import {
-	ColliderComponent,
-	DimensionsComponent,
-	PositionComponent,
-	SpriteComponent,
-} from "./components/entities/EntityComponents";
-import { DefaultEntity } from "./components/entities/Entities";
 import { Game } from "./Game";
 import { GravitySystem } from "./components/systems/GravitySystem";
 import { MovementSystem } from "./components/systems/MovementSystem";
