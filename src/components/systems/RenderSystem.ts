@@ -99,12 +99,12 @@ export class RenderSystem implements System {
 				const u0 =
 					(x + (animationComponent.facingDirection === "right" ? 0 : animationFrameSet.width)) /
 					texture.width;
-				const v0 = y / texture.height;
+				const v0 = (y + 0.1) / texture.height;
 
 				const u1 =
 					(x + (animationComponent.facingDirection === "right" ? animationFrameSet.width : 0)) /
 					texture.width;
-				const v1 = (y + animationFrameSet.height) / texture.height;
+				const v1 = (y + 0.1 + animationFrameSet.height) / texture.height;
 
 				this.drawSprite(
 					texture,
@@ -309,7 +309,7 @@ export class SpritePipeline {
 					format: navigator.gpu.getPreferredCanvasFormat(),
 					blend: {
 						color: {
-							srcFactor: "one",
+							srcFactor: "src-alpha",
 							dstFactor: "one-minus-src-alpha",
 							operation: "add",
 						},
