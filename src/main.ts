@@ -13,6 +13,7 @@ import { RenderSystem } from "./components/systems/RenderSystem";
 import { Entity, System } from "./types/ECS";
 import { Player } from "./components/entities/Player";
 import { AnimationSystem } from "./components/systems/AnimationSystem";
+import { Map } from "./components/entities/Map";
 
 /**
  * Creates a canvas instance onto the spefied `root` element and returns its webgpu context.
@@ -39,23 +40,7 @@ const initializeCanvas = (root: HTMLElement | null) => {
 const main = async () => {
 	const context = initializeCanvas(document.getElementById("root"));
 
-	const entities: Entity[] = [
-		new DefaultEntity("0", [
-			new PositionComponent({ x: 75, y: 530 }),
-			new DimensionsComponent({ height: 25, width: 50 }),
-			new ColliderComponent("rigid"),
-			new SpriteComponent("uvTestTexture"),
-		]),
-
-		new DefaultEntity("1", [
-			new PositionComponent({ x: 0, y: 0 }),
-			new DimensionsComponent({ height: 300, width: 600 }),
-			new ColliderComponent("rigid"),
-			new SpriteComponent("redTexture"),
-		]),
-
-		new Player("Player"),
-	];
+	const entities: Entity[] = [...new Map(), new Player("Player")];
 
 	const systems: System[] = [
 		new MovementSystem(window),

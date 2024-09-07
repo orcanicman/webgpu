@@ -1,6 +1,6 @@
 import { FPS } from "./config/FPS";
 import { Entity, System } from "./types/ECS";
-import { WindowManager } from "./WindowManager";
+import { WindowManager } from "./utils/WindowManager";
 
 export class Game {
 	windowManager!: WindowManager;

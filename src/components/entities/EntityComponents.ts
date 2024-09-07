@@ -13,7 +13,11 @@ export class ColliderComponent implements Component {
 
 export class ControllableComponent implements Component {
 	readonly type = "controllable";
-	constructor(public speed: number) {}
+	constructor(
+		public speed: number,
+		public isGrounded: boolean = false,
+		public canJump: boolean = true,
+	) {}
 }
 
 export class DimensionsComponent implements Component {

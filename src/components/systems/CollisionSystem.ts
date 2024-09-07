@@ -1,5 +1,6 @@
 import {
 	ColliderComponent,
+	ControllableComponent,
 	DimensionsComponent,
 	PositionComponent,
 	VelocityComponent,
@@ -25,6 +26,7 @@ export class CollisionSystem implements System {
 			const colliderComponent = getComponent<ColliderComponent>(entity, "collider");
 			const positionComponent = getComponent<PositionComponent>(entity, "position");
 			const dimensionsComponent = getComponent<DimensionsComponent>(entity, "dimensions");
+			const controllableComponent = getComponent<ControllableComponent>(entity, "controllable");
 
 			// Velocity component
 			const velocityComponent = getComponent<VelocityComponent>(entity, "velocity");
@@ -48,15 +50,29 @@ export class CollisionSystem implements System {
 				intersects(collisionObject.boundingBox, boundingBox),
 			);
 
+			if (!collidingWith.length && controllableComponent) controllableComponent.isGrounded = false;
+
 			if (!velocityComponent) continue;
+			/**
+			 * After this, we know the context we reside in has a velocity component.
+			 * So that is movable.
+			 * We see what the entity is colliding with
+			 */
 
 			for (const collisionObject of collidingWith) {
+				// Handle static collision
+				if (collisionObject.colliderComponent.colliderType === "static") {
+					if (controllableComponent) controllableComponent.isGrounded = false;
+					continue;
+				}
+
 				const moveableObjectSides = getBoundingBoxSides(boundingBox);
 				const previousMoveableObjectSides = getBoundingBoxSides(previousBoundingBox);
-
 				const collisionObjectSides = getBoundingBoxSides(collisionObject.boundingBox);
 
+				// Handle rigid collision
 				if (collisionObject.colliderComponent.colliderType === "rigid") {
+					console.log(entity.id);
 					// check horizontal
 					if (velocityComponent.velocity.x !== 0) {
 						// collision on the left of collisionObject
@@ -79,7 +95,7 @@ export class CollisionSystem implements System {
 					}
 
 					if (velocityComponent.velocity.y !== 0) {
-						// collision of the top of collisionObject
+						// collision of the bottom of collisionObject
 						if (
 							moveableObjectSides.bottom >= collisionObjectSides.top &&
 							previousMoveableObjectSides.bottom <= collisionObjectSides.top
@@ -88,20 +104,21 @@ export class CollisionSystem implements System {
 							velocityComponent.velocity.y = 0;
 						}
 
-						// collision of the bottom of collisionObject
+						// collision of the top of collisionObject
 						if (
 							moveableObjectSides.top <= collisionObjectSides.bottom &&
 							previousMoveableObjectSides.top >= collisionObjectSides.bottom
 						) {
 							positionComponent.position.y = collisionObjectSides.bottom;
 							velocityComponent.velocity.y = 0;
+
+							// set controllable isGrounded
+							if (controllableComponent) {
+								controllableComponent.isGrounded = true;
+								controllableComponent.canJump = true;
+							}
 						}
 					}
-					continue;
-				}
-
-				if (collisionObject.colliderComponent.colliderType === "static") {
-					// Handle collision with static object
 					continue;
 				}
 			}

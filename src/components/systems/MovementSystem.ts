@@ -57,7 +57,7 @@ export class MovementSystem implements System {
 
 			// Update velocity accordingly
 			const velocityDelta = controllableComponent.speed * (timePassed / 1000);
-			this.hanldeKeyboardStates(velocityDelta, velocityComponent, animationComponent);
+			this.hanldeKeyboardStates(velocityDelta, velocityComponent, controllableComponent, animationComponent);
 
 			// Brake if letting go
 			this.handleBraking(velocityDelta, velocityComponent, animationComponent);
@@ -75,6 +75,7 @@ export class MovementSystem implements System {
 	hanldeKeyboardStates(
 		velocityDelta: number,
 		velocityComponent: VelocityComponent,
+		controllableComponent: ControllableComponent,
 		animationComponent?: AnimationComponent,
 	) {
 		if (this.keyboardState.a) {
@@ -85,7 +86,7 @@ export class MovementSystem implements System {
 					(animation) => animation.name === "run",
 				)!;
 			}
-			velocityComponent.velocity.x -= velocityDelta;
+			velocityComponent.velocity.x -= velocityDelta * (controllableComponent.isGrounded ? 1 : 0.75);
 			this.limitVelocity("x", velocityComponent);
 		}
 
@@ -97,11 +98,12 @@ export class MovementSystem implements System {
 					(animation) => animation.name === "run",
 				)!;
 			}
-			velocityComponent.velocity.x += velocityDelta;
+			velocityComponent.velocity.x += velocityDelta * (controllableComponent.isGrounded ? 1 : 0.75);
 			this.limitVelocity("x", velocityComponent);
 		}
 
-		if (this.keyboardState[" "]) {
+		if (this.keyboardState[" "] && controllableComponent.isGrounded && controllableComponent.canJump) {
+			controllableComponent.canJump = false;
 			this.jump(velocityComponent);
 		}
 	}
@@ -150,6 +152,6 @@ export class MovementSystem implements System {
 	}
 
 	jump(velocityComponent: VelocityComponent) {
-		velocityComponent.velocity.y = 1000;
+		velocityComponent.velocity.y = 2500;
 	}
 }

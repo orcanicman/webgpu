@@ -1,7 +1,7 @@
-import { BufferUtil } from "../../BufferUtil";
+import { BufferUtil } from "../../utils/BufferUtil";
 import { getComponent } from "../../helpers/getComponent";
 import { QuadGeometry } from "../../helpers/StaticGeometry";
-import { Texture } from "../../Texture";
+import { Texture } from "../../utils/Texture";
 import { System, Entity } from "../../types/ECS";
 import {
 	PositionComponent,
@@ -14,6 +14,7 @@ import CustomShaders from "../../wgsl/shaders.wgsl";
 import { BoundingBox } from "../../types/BoundingBox";
 import { Vector2 } from "../../types/Vector2";
 import { getPositionValues2d } from "../../utils/getDivisionWithRemainder";
+import { FPS } from "../../config/FPS";
 
 export class RenderSystem implements System {
 	device!: GPUDevice;
@@ -70,8 +71,8 @@ export class RenderSystem implements System {
 					y: positionComponent.position.y - this.context.canvas.height / 2,
 				};
 
-				this.cameraPosition.x += (cameraTargetPosition.x - this.cameraPosition.x) * 0.05;
-				this.cameraPosition.y += (cameraTargetPosition.y - this.cameraPosition.y) * 0.05;
+				this.cameraPosition.x += (cameraTargetPosition.x - this.cameraPosition.x) * (12 / FPS);
+				this.cameraPosition.y += (cameraTargetPosition.y - this.cameraPosition.y) * (12 / FPS);
 			}
 
 			const resolutionBuffer = BufferUtil.createResolutionBuffer(
@@ -197,6 +198,7 @@ export class Content {
 		playerTexture: Texture;
 		redTexture: Texture;
 		redHitbox: Texture;
+		brownBrick: Texture;
 	};
 
 	public static animationSheets: {
@@ -209,6 +211,7 @@ export class Content {
 			redHitbox: await Texture.createTextureFromURL(device, "/assets/red_hitbox.png"),
 			redTexture: await Texture.createTextureFromURL(device, "/assets/red_16x32.png"),
 			uvTestTexture: await Texture.createTextureFromURL(device, "/assets/uv_test.png"),
+			brownBrick: await Texture.createTextureFromURL(device, "/assets/brown_brick_16x16.png"),
 		};
 
 		this.animationSheets = {
