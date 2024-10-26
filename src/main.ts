@@ -33,7 +33,7 @@ const initializeCanvas = (root: HTMLElement | null) => {
 const main = async () => {
 	const context = initializeCanvas(document.getElementById("root"));
 
-	const entities: Entity[] = [...new Map(), new Player("Player")];
+	const entities: Entity[] = new Map([new Player("Player")]);
 
 	const systems: System[] = [
 		new MovementSystem(window),

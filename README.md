@@ -1,18 +1,13 @@
-# TODO - Engine:
-
 <!--
 Done : ✅
 To do: ❌
  -->
 
-| Item                   | Done? |
-| ---------------------- | ----- |
-| Controllable character | ✅    |
-| Collision objects      | ✅    |
-| Textures               | ✅    |
-| Multiple textures      | ✅    |
-| Camera                 | ✅    |
-| Animations             | ✅    |
+# TODO - Engine:
+
+| Item               | Done? |
+| ------------------ | ----- |
+| "Camera Dead-zone" | ❌    |
 
 # TODO - Game engine design:
 
@@ -36,8 +31,9 @@ To do: ❌
 
 # TODO - Assets:
 
-| Item                   | Done? |
-| ---------------------- | ----- |
-| Player testmodel       | ✅    |
-| Player model prototype | ❌    |
-| Player animations      | ❌    |
+| Item                        | Done? |
+| --------------------------- | ----- |
+| Player testmodel            | ✅    |
+| Player testmodel animations | ✅    |
+| Player model prototype      | ❌    |
+| Player animations           | ❌    |

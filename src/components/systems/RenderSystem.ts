@@ -197,8 +197,12 @@ export class Content {
 		uvTestTexture: Texture;
 		playerTexture: Texture;
 		redTexture: Texture;
+		blueTexture: Texture;
 		redHitbox: Texture;
 		brownBrick: Texture;
+		blueArrow: Texture;
+		purplePortal: Texture;
+		cobbleBrick: Texture;
 	};
 
 	public static animationSheets: {
@@ -210,8 +214,12 @@ export class Content {
 			playerTexture: await Texture.createTextureFromURL(device, "/assets/transparent_16x16.png"),
 			redHitbox: await Texture.createTextureFromURL(device, "/assets/red_hitbox.png"),
 			redTexture: await Texture.createTextureFromURL(device, "/assets/red_16x32.png"),
+			blueTexture: await Texture.createTextureFromURL(device, "/assets/blue_16x16.png"),
 			uvTestTexture: await Texture.createTextureFromURL(device, "/assets/uv_test.png"),
 			brownBrick: await Texture.createTextureFromURL(device, "/assets/brown_brick_16x16.png"),
+			blueArrow: await Texture.createTextureFromURL(device, "/assets/Arrow.png"),
+			purplePortal: await Texture.createTextureFromURL(device, "/assets/Portal_16x32.png"),
+			cobbleBrick: await Texture.createTextureFromURL(device, "/assets/cobble_16x16.png"),
 		};
 
 		this.animationSheets = {
