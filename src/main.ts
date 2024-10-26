@@ -7,6 +7,7 @@ import { Entity, System } from "./types/ECS";
 import { Player } from "./components/entities/Player";
 import { AnimationSystem } from "./components/systems/AnimationSystem";
 import { Map } from "./components/entities/Map";
+import { EffectSystem } from "./components/systems/EffectSystem";
 
 /**
  * Creates a canvas instance onto the spefied `root` element and returns its webgpu context.
@@ -38,6 +39,7 @@ const main = async () => {
 	const systems: System[] = [
 		new MovementSystem(window),
 		new CollisionSystem(),
+		new EffectSystem(),
 		new GravitySystem(),
 		new AnimationSystem(),
 		new RenderSystem(context),

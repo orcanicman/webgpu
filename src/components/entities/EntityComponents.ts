@@ -11,6 +11,38 @@ export class ColliderComponent implements Component {
 	constructor(public colliderType: "rigid" | "static" | "dynamic") {}
 }
 
+export type Effect = "teleport" | "speed";
+
+export class EffectComponent implements Component {
+	readonly type = "effect";
+
+	constructor(
+		public providers: Effect[] = [],
+		public consumers: Effect[] = [],
+	) {}
+
+	public addUniqueProvider = (effect: Effect) => {
+		if (this.providers.includes(effect)) return;
+		this.providers.push(effect);
+	};
+
+	public addUniqueConsumer = (effect: Effect) => {
+		if (this.consumers.includes(effect)) return;
+		this.consumers.push(effect);
+	};
+
+	public removeProviderEffect = (effect: Effect) => {
+		const help = this.providers.filter((compEffect) => compEffect !== effect);
+		this.providers = help;
+	};
+
+	public removeConsumerEffect = (effect: Effect) => {
+		const consumers = this.consumers.filter((compEffect) => compEffect !== effect);
+		console.log(consumers);
+		this.consumers = consumers;
+	};
+}
+
 export class ControllableComponent implements Component {
 	readonly type = "controllable";
 	constructor(

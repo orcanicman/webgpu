@@ -8,7 +8,8 @@ export type Component = {
 		| "collider"
 		| "sprite"
 		| "camera_focus"
-		| "animation";
+		| "animation"
+		| "effect";
 };
 
 export type Entity = {

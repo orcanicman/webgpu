@@ -2,6 +2,7 @@ import {
 	ColliderComponent,
 	ControllableComponent,
 	DimensionsComponent,
+	EffectComponent,
 	PositionComponent,
 	VelocityComponent,
 } from "../entities/EntityComponents";
@@ -62,7 +63,18 @@ export class CollisionSystem implements System {
 			for (const collisionObject of collidingWith) {
 				// Handle static collision
 				if (collisionObject.colliderComponent.colliderType === "static") {
-					// if (controllableComponent) controllableComponent.isGrounded = false;
+					const staticCollisionObjectEffectComponent = getComponent<EffectComponent>(
+						collisionObject.entity,
+						"effect",
+					);
+					const entityEffectComponent = getComponent<EffectComponent>(entity, "effect");
+
+					if (!staticCollisionObjectEffectComponent || !entityEffectComponent) continue;
+
+					for (const effect of staticCollisionObjectEffectComponent.providers) {
+						entityEffectComponent?.addUniqueConsumer(effect);
+					}
+
 					continue;
 				}
 
@@ -72,59 +84,79 @@ export class CollisionSystem implements System {
 
 				// Handle rigid collision
 				if (collisionObject.colliderComponent.colliderType === "rigid") {
-					console.log(entity.id);
-					// check horizontal
-					if (velocityComponent.velocity.x !== 0) {
-						// collision on the left of collisionObject
-						if (
-							moveableObjectSides.right >= collisionObjectSides.left &&
-							previousMoveableObjectSides.right <= collisionObjectSides.left
-						) {
-							positionComponent.position.x = collisionObjectSides.left - boundingBox.width;
-							velocityComponent.velocity.x = 0;
-						}
-
-						// collision on the right of collisionObject
-						if (
-							moveableObjectSides.left <= collisionObjectSides.right &&
-							previousMoveableObjectSides.left >= collisionObjectSides.right
-						) {
-							positionComponent.position.x = collisionObjectSides.right;
-							velocityComponent.velocity.x = 0;
-						}
-					}
-
-					if (velocityComponent.velocity.y !== 0) {
-						// collision of the bottom of collisionObject
-						if (
-							moveableObjectSides.bottom >= collisionObjectSides.top &&
-							previousMoveableObjectSides.bottom <= collisionObjectSides.top
-						) {
-							positionComponent.position.y = collisionObjectSides.top - boundingBox.height;
-							velocityComponent.velocity.y = 0;
-						}
-
-						// collision of the top of collisionObject
-						if (
-							moveableObjectSides.top <= collisionObjectSides.bottom &&
-							previousMoveableObjectSides.top >= collisionObjectSides.bottom
-						) {
-							positionComponent.position.y = collisionObjectSides.bottom;
-							velocityComponent.velocity.y = 0;
-
-							// set controllable isGrounded
-							if (controllableComponent) {
-								controllableComponent.isGrounded = true;
-								controllableComponent.canJump = true;
-							}
-						}
-					}
+					//TODO: ugly ass shit
+					handleRigidCollision(
+						velocityComponent,
+						moveableObjectSides,
+						previousMoveableObjectSides,
+						collisionObjectSides,
+						positionComponent,
+						boundingBox,
+						controllableComponent,
+					);
 					continue;
 				}
 			}
 		}
 	};
 }
+
+const handleRigidCollision = (
+	velocityComponent: VelocityComponent,
+	moveableObjectSides: Sides,
+	previousMoveableObjectSides: Sides,
+	collisionObjectSides: Sides,
+	positionComponent: PositionComponent,
+	boundingBox: BoundingBox,
+	controllableComponent?: ControllableComponent,
+) => {
+	// check horizontal
+	if (velocityComponent.velocity.x !== 0) {
+		// collision on the left of collisionObject
+		if (
+			moveableObjectSides.right >= collisionObjectSides.left &&
+			previousMoveableObjectSides.right <= collisionObjectSides.left
+		) {
+			positionComponent.position.x = collisionObjectSides.left - boundingBox.width;
+			velocityComponent.velocity.x = 0;
+		}
+
+		// collision on the right of collisionObject
+		if (
+			moveableObjectSides.left <= collisionObjectSides.right &&
+			previousMoveableObjectSides.left >= collisionObjectSides.right
+		) {
+			positionComponent.position.x = collisionObjectSides.right;
+			velocityComponent.velocity.x = 0;
+		}
+	}
+
+	if (velocityComponent.velocity.y !== 0) {
+		// collision of the bottom of collisionObject
+		if (
+			moveableObjectSides.bottom >= collisionObjectSides.top &&
+			previousMoveableObjectSides.bottom <= collisionObjectSides.top
+		) {
+			positionComponent.position.y = collisionObjectSides.top - boundingBox.height;
+			velocityComponent.velocity.y = 0;
+		}
+
+		// collision of the top of collisionObject
+		if (
+			moveableObjectSides.top <= collisionObjectSides.bottom &&
+			previousMoveableObjectSides.top >= collisionObjectSides.bottom
+		) {
+			positionComponent.position.y = collisionObjectSides.bottom;
+			velocityComponent.velocity.y = 0;
+
+			// set controllable isGrounded
+			if (controllableComponent) {
+				controllableComponent.isGrounded = true;
+				controllableComponent.canJump = true;
+			}
+		}
+	}
+};
 
 const getBoundingBoxSides = (boundingBox: BoundingBox): Sides => {
 	return {

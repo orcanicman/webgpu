@@ -1,6 +1,12 @@
 import { Entity } from "../../types/ECS";
 import { DefaultEntity } from "./Entities";
-import { PositionComponent, DimensionsComponent, ColliderComponent, SpriteComponent } from "./EntityComponents";
+import {
+	PositionComponent,
+	DimensionsComponent,
+	ColliderComponent,
+	SpriteComponent,
+	EffectComponent,
+} from "./EntityComponents";
 
 export class Map extends Array<Entity> {
 	constructor(public items: Entity[] = []) {
@@ -21,6 +27,7 @@ export class Map extends Array<Entity> {
 				new PositionComponent({ x: 500, y: 125 }),
 				new DimensionsComponent({ width: 250, height: 250 }),
 				new ColliderComponent("static"),
+				new EffectComponent(["speed"]),
 				new SpriteComponent("blueArrow"),
 			]),
 			new DefaultEntity("Arrow right 3", [
@@ -65,6 +72,7 @@ const portalStuff: Entity[] = [
 		new DimensionsComponent({ width: 125, height: 250 }),
 		new ColliderComponent("static"),
 		new SpriteComponent("purplePortal"),
+		new EffectComponent(["teleport"]),
 	]),
 	new DefaultEntity("Cobble", [
 		new PositionComponent({ x: 2250, y: -1000 }),

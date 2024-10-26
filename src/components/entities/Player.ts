@@ -10,6 +10,7 @@ import {
 	CameraFocusComponent,
 	SpriteComponent,
 	AnimationComponent,
+	EffectComponent,
 } from "./EntityComponents";
 
 export class Player extends DefaultEntity {
@@ -23,6 +24,7 @@ export class Player extends DefaultEntity {
 			new ColliderComponent("dynamic"),
 			new CameraFocusComponent(),
 			new SpriteComponent("redHitbox"),
+			new EffectComponent(),
 			new AnimationComponent(
 				playerAnimationSheetDescriptor,
 				250,
