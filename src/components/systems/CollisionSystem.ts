@@ -62,7 +62,7 @@ export class CollisionSystem implements System {
 			for (const collisionObject of collidingWith) {
 				// Handle static collision
 				if (collisionObject.colliderComponent.colliderType === "static") {
-					if (controllableComponent) controllableComponent.isGrounded = false;
+					// if (controllableComponent) controllableComponent.isGrounded = false;
 					continue;
 				}
 
