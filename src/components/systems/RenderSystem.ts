@@ -148,6 +148,7 @@ export class RenderSystem implements System {
 		cameraBuffer: GPUBuffer,
 		UV: { u: [number, number, number, number]; v: [number, number, number, number] },
 	) => {
+		// memory leak.
 		const spritePipepline = SpritePipeline.create(this.device, texture, resolutionBuffer, cameraBuffer);
 
 		const geometryData = new QuadGeometry(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height, UV);
@@ -210,6 +211,7 @@ export class Content {
 	};
 
 	public static async initialize(device: GPUDevice) {
+		console.log("Render system initialized.");
 		this.textures = {
 			playerTexture: await Texture.createTextureFromURL(device, "/assets/transparent_16x16.png"),
 			redHitbox: await Texture.createTextureFromURL(device, "/assets/red_hitbox.png"),
@@ -237,6 +239,9 @@ export class SpritePipeline {
 	public resolutionBindGroup!: GPUBindGroup;
 	public cameraBindGroup!: GPUBindGroup;
 
+	/**
+	 * TODO: This creates a BIG memory leak.
+	 */
 	public static create(
 		device: GPUDevice,
 		texture: Texture,
