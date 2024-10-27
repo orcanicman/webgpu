@@ -14,7 +14,7 @@ import CustomShaders from "../../wgsl/shaders.wgsl";
 import { BoundingBox } from "../../types/BoundingBox";
 import { Vector2 } from "../../types/Vector2";
 import { getPositionValues2d } from "../../utils/getDivisionWithRemainder";
-import { FPS } from "../../config/FPS";
+import { TickSpeed } from "../../config/TickSpeed";
 
 export class RenderSystem implements System {
 	device!: GPUDevice;
@@ -71,8 +71,8 @@ export class RenderSystem implements System {
 					y: positionComponent.position.y - this.context.canvas.height / 2,
 				};
 
-				this.cameraPosition.x += (cameraTargetPosition.x - this.cameraPosition.x) * (12 / FPS);
-				this.cameraPosition.y += (cameraTargetPosition.y - this.cameraPosition.y) * (12 / FPS);
+				this.cameraPosition.x += (cameraTargetPosition.x - this.cameraPosition.x) * (12 / TickSpeed);
+				this.cameraPosition.y += (cameraTargetPosition.y - this.cameraPosition.y) * (12 / TickSpeed);
 			}
 
 			const resolutionBuffer = BufferUtil.createResolutionBuffer(

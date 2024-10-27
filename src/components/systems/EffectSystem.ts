@@ -22,10 +22,10 @@ export class EffectSystem implements System {
 
 					case "speed":
 						{
-							console.log("Speed 2x");
-							console.log(entity.id);
+							// console.log("Speed 2x");
+							// console.log(entity.id);
 							const velocityComponent = getComponent<VelocityComponent>(entity, "velocity");
-							console.log(entity.components);
+							// console.log(entity.components);
 							if (!velocityComponent) break;
 
 							// This wont do much since if you hold A or D the velocity gets limited with the LIMIT.

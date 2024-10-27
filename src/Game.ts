@@ -1,4 +1,4 @@
-import { FPS } from "./config/FPS";
+import { TickSpeed } from "./config/TickSpeed";
 import { Entity, System } from "./types/ECS";
 import { WindowManager } from "./utils/WindowManager";
 
@@ -22,7 +22,7 @@ export class Game {
 	};
 
 	public loop = (time: number) => {
-		const frameTime = 1000 / FPS;
+		const frameTime = 1000 / TickSpeed;
 		const deltaTime = time - this.windowManager.previousTimestamp;
 		this.windowManager.previousTimestamp = time;
 		this.windowManager.accumulatedTime += deltaTime;
