@@ -12,8 +12,6 @@ export class EffectSystem implements System {
 			const effectComponent = getComponent<EffectComponent>(entity, "effect");
 			if (!effectComponent) continue;
 
-			console.log(effectComponent.consumers);
-
 			for (const effect of effectComponent.consumers) {
 				switch (effect) {
 					case "teleport":

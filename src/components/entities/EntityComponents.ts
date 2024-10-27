@@ -38,7 +38,6 @@ export class EffectComponent implements Component {
 
 	public removeConsumerEffect = (effect: Effect) => {
 		const consumers = this.consumers.filter((compEffect) => compEffect !== effect);
-		console.log(consumers);
 		this.consumers = consumers;
 	};
 }
