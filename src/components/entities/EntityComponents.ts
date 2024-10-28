@@ -32,8 +32,8 @@ export class EffectComponent implements Component {
 	};
 
 	public removeProviderEffect = (effect: Effect) => {
-		const help = this.providers.filter((compEffect) => compEffect !== effect);
-		this.providers = help;
+		const providers = this.providers.filter((compEffect) => compEffect !== effect);
+		this.providers = providers;
 	};
 
 	public removeConsumerEffect = (effect: Effect) => {
