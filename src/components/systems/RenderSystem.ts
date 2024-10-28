@@ -10,7 +10,6 @@ import {
 	CameraFocusComponent,
 	AnimationComponent,
 } from "../entities/EntityComponents";
-import { BoundingBox } from "../../types/BoundingBox";
 import { Vector2 } from "../../types/Vector2";
 import { getPositionValues2d } from "../../utils/getDivisionWithRemainder";
 import { TickSpeed } from "../../config/TickSpeed";
@@ -31,7 +30,11 @@ export class RenderSystem implements System {
 		cameraBuffer: GPUBuffer;
 	};
 
-	spritePipelines: { pipeline: SpritePipeline; entity: Entity }[] = [];
+	spritesProperties: {
+		pipeline: SpritePipeline;
+		entity: Entity;
+		buffers: { vertexBuffer: GPUBuffer; indexBuffer: GPUBuffer };
+	}[] = [];
 
 	constructor(private context: GPUCanvasContext) {}
 
@@ -87,9 +90,6 @@ export class RenderSystem implements System {
 			new Float32Array([this.cameraPosition.x, this.cameraPosition.y]),
 		);
 
-		// TEMP CACHING
-		const buffers: GPUBuffer[] = [];
-
 		// DRAW HERE
 		for (const entity of entities) {
 			const positionComponent = getComponent<PositionComponent>(entity, "position");
@@ -143,66 +143,77 @@ export class RenderSystem implements System {
 				UV.v = [v1, v1, v0, v0];
 			}
 
-			const spritePipeline = this.getSpritePipeline(entity, texture);
-
-			const { indexBuffer, vertexBuffer } = this.drawSprite(
-				spritePipeline,
-				{
-					...positionComponent.position,
-					...dimensionsComponent.dimensions,
-				},
+			const geometryData = new QuadGeometry(
+				positionComponent.position.x,
+				positionComponent.position.y,
+				dimensionsComponent.dimensions.width,
+				dimensionsComponent.dimensions.height,
 				UV,
 			);
-			buffers.push(indexBuffer, vertexBuffer);
+
+			const { pipeline, buffers } = this.getSpriteProperties(entity, texture, geometryData);
+
+			this.drawSprite(pipeline, buffers, geometryData);
 		}
 
 		renderPass.end();
 		this.device.queue.submit([encoder.finish()]);
-		buffers.forEach((buffer) => {
-			buffer.destroy();
-		});
 	};
 
 	public drawSprite = (
 		spritePipeline: SpritePipeline,
-		boundingBox: BoundingBox,
-		UV: { u: [number, number, number, number]; v: [number, number, number, number] },
+		buffers: { vertexBuffer: GPUBuffer; indexBuffer: GPUBuffer },
+		geometryData: QuadGeometry,
 	) => {
-		const geometryData = new QuadGeometry(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height, UV);
-
-		const vertexBuffer = BufferUtil.createVertexBuffer(this.device, new Float32Array(geometryData.vertices));
-		const indexBuffer = BufferUtil.createIndexBuffer(this.device, new Uint16Array(geometryData.inidices));
-
 		this.renderPass.setPipeline(spritePipeline.pipeline);
-		this.renderPass.setIndexBuffer(indexBuffer, "uint16");
-		this.renderPass.setVertexBuffer(0, vertexBuffer);
+		this.renderPass.setIndexBuffer(buffers.indexBuffer, "uint16");
+		this.renderPass.setVertexBuffer(0, buffers.vertexBuffer);
 
 		this.renderPass.setBindGroup(0, spritePipeline.resolutionBindGroup);
 		this.renderPass.setBindGroup(1, spritePipeline.cameraBindGroup);
 		this.renderPass.setBindGroup(2, spritePipeline.textureBindGroup);
 		this.renderPass.drawIndexed(geometryData.inidices.length);
-		return {
-			vertexBuffer,
-			indexBuffer,
-		};
 	};
 
-	private getSpritePipeline = (entity: Entity, texture: Texture): SpritePipeline => {
-		let spritePipeline = this.spritePipelines.find((spritePipeline) => spritePipeline.entity === entity);
-		if (!spritePipeline) {
-			spritePipeline = {
-				pipeline: SpritePipeline.create(
-					this.device,
-					texture,
-					this.buffers.resolutionBuffer,
-					this.buffers.cameraBuffer,
-				),
-				entity: entity,
-			};
-			this.spritePipelines.push(spritePipeline);
+	private getSpriteProperties = (
+		entity: Entity,
+		texture: Texture,
+		geometryData: QuadGeometry,
+	): (typeof this.spritesProperties)[number] => {
+		const spritePipeline = this.spritesProperties.find((spritePipeline) => spritePipeline.entity === entity);
+
+		if (spritePipeline) {
+			this.device.queue.writeBuffer(
+				spritePipeline.buffers.vertexBuffer,
+				0,
+				new Float32Array(geometryData.vertices),
+			);
+			this.device.queue.writeBuffer(
+				spritePipeline.buffers.indexBuffer,
+				0,
+				new Uint16Array(geometryData.inidices),
+			);
+			return spritePipeline;
 		}
 
-		return spritePipeline.pipeline;
+		const vertexBuffer = BufferUtil.createVertexBuffer(this.device, new Float32Array(geometryData.vertices));
+		const indexBuffer = BufferUtil.createIndexBuffer(this.device, new Uint16Array(geometryData.inidices));
+
+		const newSpritePipeline = {
+			pipeline: SpritePipeline.create(
+				this.device,
+				texture,
+				this.buffers.resolutionBuffer,
+				this.buffers.cameraBuffer,
+			),
+			entity: entity,
+			buffers: {
+				vertexBuffer,
+				indexBuffer,
+			},
+		};
+		this.spritesProperties.push(newSpritePipeline);
+		return newSpritePipeline;
 	};
 
 	/**
