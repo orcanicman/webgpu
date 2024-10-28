@@ -87,6 +87,9 @@ export class RenderSystem implements System {
 			new Float32Array([this.cameraPosition.x, this.cameraPosition.y]),
 		);
 
+		// TEMP CACHING
+		const buffers: GPUBuffer[] = [];
+
 		// DRAW HERE
 		for (const entity of entities) {
 			const positionComponent = getComponent<PositionComponent>(entity, "position");
@@ -142,7 +145,7 @@ export class RenderSystem implements System {
 
 			const spritePipeline = this.getSpritePipeline(entity, texture);
 
-			this.drawSprite(
+			const { indexBuffer, vertexBuffer } = this.drawSprite(
 				spritePipeline,
 				{
 					...positionComponent.position,
@@ -150,10 +153,14 @@ export class RenderSystem implements System {
 				},
 				UV,
 			);
+			buffers.push(indexBuffer, vertexBuffer);
 		}
 
 		renderPass.end();
 		this.device.queue.submit([encoder.finish()]);
+		buffers.forEach((buffer) => {
+			buffer.destroy();
+		});
 	};
 
 	public drawSprite = (
@@ -174,6 +181,10 @@ export class RenderSystem implements System {
 		this.renderPass.setBindGroup(1, spritePipeline.cameraBindGroup);
 		this.renderPass.setBindGroup(2, spritePipeline.textureBindGroup);
 		this.renderPass.drawIndexed(geometryData.inidices.length);
+		return {
+			vertexBuffer,
+			indexBuffer,
+		};
 	};
 
 	private getSpritePipeline = (entity: Entity, texture: Texture): SpritePipeline => {

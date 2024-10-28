@@ -1,5 +1,9 @@
 export class BufferUtil {
+	/**
+	 * Memory leak
+	 */
 	public static createVertexBuffer(device: GPUDevice, data: Float32Array): GPUBuffer {
+		// console.log("Create vertex buffer");
 		const buffer = device.createBuffer({
 			size: data.byteLength,
 			usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
@@ -38,6 +42,9 @@ export class BufferUtil {
 		return buffer;
 	}
 
+	/**
+	 * Memory leak
+	 */
 	public static createIndexBuffer(device: GPUDevice, data: Uint16Array): GPUBuffer {
 		const buffer = device.createBuffer({
 			size: data.byteLength,
