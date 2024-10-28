@@ -254,6 +254,7 @@ export class Content {
 		blueArrow: Texture;
 		purplePortal: Texture;
 		cobbleBrick: Texture;
+		cobbleBrickLight: Texture;
 	};
 
 	public static animationSheets: {
@@ -272,6 +273,7 @@ export class Content {
 			blueArrow: await Texture.createTextureFromURL(device, "/assets/Arrow.png"),
 			purplePortal: await Texture.createTextureFromURL(device, "/assets/Portal_16x32.png"),
 			cobbleBrick: await Texture.createTextureFromURL(device, "/assets/cobble_16x16.png"),
+			cobbleBrickLight: await Texture.createTextureFromURL(device, "/assets/cobble_16x16-2.png"),
 		};
 
 		this.animationSheets = {
