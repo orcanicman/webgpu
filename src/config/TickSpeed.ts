@@ -1,1 +1,1 @@
-export const TickSpeed = 256;
+export const TickSpeed = 128;
