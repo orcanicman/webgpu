@@ -1,14 +1,10 @@
+import { UV } from "../types/UV";
+
 export class QuadGeometry {
 	public vertices: number[];
 	public inidices: number[];
 
-	constructor(
-		x: number,
-		y: number,
-		w: number,
-		h: number,
-		{ u, v }: { u: [number, number, number, number]; v: [number, number, number, number] },
-	) {
+	constructor(x: number, y: number, w: number, h: number, { u, v }: UV) {
 		/**
 		 * FYI, texture coordinates are drawn from the top left.
 		 * This is different than the coordinate system i am using.

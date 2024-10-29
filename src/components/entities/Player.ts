@@ -21,7 +21,7 @@ export class Player extends DefaultEntity {
 			new GravityComponent(1000),
 			new ColliderComponent("dynamic"),
 			new CameraFocusComponent(),
-			new SpriteComponent("redHitbox"),
+			new SpriteComponent([{ source: "redHitbox" }]),
 			new EffectComponent(),
 			new AnimationComponent(
 				playerAnimationSheetDescriptor,

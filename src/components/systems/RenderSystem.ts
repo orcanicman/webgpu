@@ -13,6 +13,7 @@ import { getPositionValues2d } from "../../utils/getDivisionWithRemainder";
 import { TickSpeed } from "../../config/TickSpeed";
 import { SpritePipeline } from "./RenderSystem/SpritePipeline";
 import { Content } from "./RenderSystem/Content";
+import { UV } from "../../types/UV";
 
 export class RenderSystem implements System {
 	device!: GPUDevice;
@@ -32,6 +33,7 @@ export class RenderSystem implements System {
 	spritesProperties: {
 		pipeline: SpritePipeline;
 		entity: Entity;
+		texture: Texture;
 		buffers: { vertexBuffer: GPUBuffer; indexBuffer: GPUBuffer };
 	}[] = [];
 
@@ -90,88 +92,76 @@ export class RenderSystem implements System {
 		);
 
 		// DRAW HERE
-		for (const entity of entities) {
-			const positionComponent = getComponent<PositionComponent>(entity, "position");
-			const dimensionsComponent = getComponent<DimensionsComponent>(entity, "dimensions");
-			const spriteComponent = getComponent<SpriteComponent>(entity, "sprite");
-			const cameraFocusComponent = getComponent<CameraFocusComponent>(entity, "camera_focus");
-			const animationComponent = getComponent<AnimationComponent>(entity, "animation");
-
-			// Don't draw anything if entity does not have a position or dimensions.
-			if (!positionComponent || !dimensionsComponent || !spriteComponent) continue;
-
-			if (cameraFocusComponent) {
-				const cameraTargetPosition = {
-					x: positionComponent.position.x - this.context.canvas.width / 2,
-					y: positionComponent.position.y - this.context.canvas.height / 2,
-				};
-
-				this.cameraPosition.x += (cameraTargetPosition.x - this.cameraPosition.x) * (12 / TickSpeed);
-				this.cameraPosition.y += (cameraTargetPosition.y - this.cameraPosition.y) * (12 / TickSpeed);
-			}
-
-			const UV: { u: [number, number, number, number]; v: [number, number, number, number] } = {
-				u: [0, 1, 1, 0],
-				v: [1, 1, 0, 0],
-			};
-
-			let texture = Content["textures"][spriteComponent.source] as Texture;
-
-			if (animationComponent && animationComponent.currentAnimation) {
-				texture = Content["animationSheets"][animationComponent.animationSheet.name] as Texture;
-
-				const animationFrameSet = animationComponent.currentAnimation;
-
-				const { x, y } = getPositionValues2d(
-					texture.width,
-					animationFrameSet.width,
-					animationComponent.currentFrame,
-				);
-
-				const u0 =
-					(x + (animationComponent.facingDirection === "right" ? 0 : animationFrameSet.width)) /
-					texture.width;
-				const v0 = (y + 0.1) / texture.height;
-
-				const u1 =
-					(x + (animationComponent.facingDirection === "right" ? animationFrameSet.width : 0)) /
-					texture.width;
-				const v1 = (y + 0.1 + animationFrameSet.height) / texture.height;
-
-				UV.u = [u0, u1, u1, u0];
-				UV.v = [v1, v1, v0, v0];
-			}
-
-			const geometryData = new QuadGeometry(
-				positionComponent.position.x,
-				positionComponent.position.y,
-				dimensionsComponent.dimensions.width,
-				dimensionsComponent.dimensions.height,
-				UV,
-			);
-
-			const { pipeline, buffers } = this.getSpriteProperties(entity, texture, geometryData);
-
-			this.drawSprite(pipeline, buffers, geometryData);
-		}
+		for (const entity of entities) this.renderEntity(entity);
 
 		renderPass.end();
 		this.device.queue.submit([encoder.finish()]);
 	};
 
-	public drawSprite = (
-		spritePipeline: SpritePipeline,
-		buffers: { vertexBuffer: GPUBuffer; indexBuffer: GPUBuffer },
-		geometryData: QuadGeometry,
-	) => {
-		this.renderPass.setPipeline(spritePipeline.pipeline);
-		this.renderPass.setIndexBuffer(buffers.indexBuffer, "uint16");
-		this.renderPass.setVertexBuffer(0, buffers.vertexBuffer);
+	private renderEntity = (entity: Entity) => {
+		const positionComponent = getComponent<PositionComponent>(entity, "position");
+		const dimensionsComponent = getComponent<DimensionsComponent>(entity, "dimensions");
+		const spriteComponent = getComponent<SpriteComponent>(entity, "sprite");
+		const cameraFocusComponent = getComponent<CameraFocusComponent>(entity, "camera_focus");
+		const animationComponent = getComponent<AnimationComponent>(entity, "animation");
 
-		this.renderPass.setBindGroup(0, spritePipeline.resolutionBindGroup);
-		this.renderPass.setBindGroup(1, spritePipeline.cameraBindGroup);
-		this.renderPass.setBindGroup(2, spritePipeline.textureBindGroup);
-		this.renderPass.drawIndexed(geometryData.inidices.length);
+		// Don't draw anything if entity does not have a position or dimensions.
+		if (!positionComponent || !dimensionsComponent || !spriteComponent) return;
+
+		// Update camera
+		if (cameraFocusComponent) this.updateCameraToPosition(positionComponent);
+
+		const textures: { UV: UV; texture: Texture }[] = [];
+
+		if (animationComponent && animationComponent.currentAnimation) {
+			const texture = Content["animationSheets"][animationComponent.animationSheet.name] as Texture;
+
+			const animationFrameSet = animationComponent.currentAnimation;
+
+			const { x, y } = getPositionValues2d(
+				texture.width,
+				animationFrameSet.width,
+				animationComponent.currentFrame,
+			);
+
+			const u0 =
+				(x + (animationComponent.facingDirection === "right" ? 0 : animationFrameSet.width)) / texture.width;
+			const v0 = (y + 0.1) / texture.height;
+
+			const u1 =
+				(x + (animationComponent.facingDirection === "right" ? animationFrameSet.width : 0)) / texture.width;
+			const v1 = (y + 0.1 + animationFrameSet.height) / texture.height;
+
+			const UV: UV = {
+				u: [u0, u1, u1, u0],
+				v: [v1, v1, v0, v0],
+			};
+
+			textures.push({ texture, UV });
+		}
+
+		for (const textureSource of spriteComponent.textures) {
+			const UV: UV = {
+				u: [0, 1, 1, 0],
+				v: [1, 1, 0, 0],
+			};
+			const texture = Content["textures"][textureSource.source] as Texture;
+			textures.push({ texture, UV });
+		}
+
+		for (const texture of textures) {
+			const geometryData = new QuadGeometry(
+				positionComponent.position.x,
+				positionComponent.position.y,
+				dimensionsComponent.dimensions.width,
+				dimensionsComponent.dimensions.height,
+				texture.UV,
+			);
+
+			const { pipeline, buffers } = this.getSpriteProperties(entity, texture.texture, geometryData);
+
+			this.drawSprite(pipeline, buffers, geometryData);
+		}
 	};
 
 	private getSpriteProperties = (
@@ -179,7 +169,9 @@ export class RenderSystem implements System {
 		texture: Texture,
 		geometryData: QuadGeometry,
 	): (typeof this.spritesProperties)[number] => {
-		const spritePipeline = this.spritesProperties.find((spritePipeline) => spritePipeline.entity === entity);
+		const spritePipeline = this.spritesProperties.find(
+			(spritePipeline) => spritePipeline.entity === entity && spritePipeline.texture === texture,
+		);
 
 		if (spritePipeline) {
 			this.device.queue.writeBuffer(
@@ -210,9 +202,35 @@ export class RenderSystem implements System {
 				vertexBuffer,
 				indexBuffer,
 			},
+			texture: texture,
 		};
 		this.spritesProperties.push(newSpritePipeline);
 		return newSpritePipeline;
+	};
+
+	private drawSprite = (
+		spritePipeline: SpritePipeline,
+		buffers: { vertexBuffer: GPUBuffer; indexBuffer: GPUBuffer },
+		geometryData: QuadGeometry,
+	) => {
+		this.renderPass.setPipeline(spritePipeline.pipeline);
+		this.renderPass.setIndexBuffer(buffers.indexBuffer, "uint16");
+		this.renderPass.setVertexBuffer(0, buffers.vertexBuffer);
+
+		this.renderPass.setBindGroup(0, spritePipeline.resolutionBindGroup);
+		this.renderPass.setBindGroup(1, spritePipeline.cameraBindGroup);
+		this.renderPass.setBindGroup(2, spritePipeline.textureBindGroup);
+		this.renderPass.drawIndexed(geometryData.inidices.length);
+	};
+
+	private updateCameraToPosition = (positionComponent: PositionComponent) => {
+		const cameraTargetPosition = {
+			x: positionComponent.position.x - this.context.canvas.width / 2,
+			y: positionComponent.position.y - this.context.canvas.height / 2,
+		};
+
+		this.cameraPosition.x += (cameraTargetPosition.x - this.cameraPosition.x) * (12 / TickSpeed);
+		this.cameraPosition.y += (cameraTargetPosition.y - this.cameraPosition.y) * (12 / TickSpeed);
 	};
 
 	/**

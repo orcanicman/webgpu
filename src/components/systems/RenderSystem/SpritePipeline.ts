@@ -1,5 +1,5 @@
-import { Texture } from "../../utils/Texture";
-import CustomShaders from "../../wgsl/shaders.wgsl";
+import { Texture } from "../../../utils/Texture";
+import CustomShaders from "../../../wgsl/shaders.wgsl";
 
 export class SpritePipeline {
 	public pipeline!: GPURenderPipeline;
