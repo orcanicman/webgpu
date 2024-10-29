@@ -1,4 +1,4 @@
-import { Content } from "../components/systems/RenderSystem";
+import { Content } from "../components/systems/RenderSystem/Content";
 
 export type AnimationSheet<AnimationKeys = unknown> = {
 	readonly name: keyof (typeof Content)["animationSheets"];

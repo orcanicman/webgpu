@@ -2,7 +2,7 @@ import { AnimationSheet, PlayerAnimations } from "../../types/Animation";
 import { Dimensions2D } from "../../types/Dimensions2D";
 import { Component } from "../../types/ECS";
 import { Vector2 } from "../../types/Vector2";
-import { Content } from "../systems/RenderSystem";
+import { Content } from "../systems/RenderSystem/Content";
 
 export class ColliderComponent implements Component {
 	readonly type = "collider";
