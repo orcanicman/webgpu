@@ -5,6 +5,8 @@ import { PositionComponent } from "./EntityComponents/PositionComponent";
 import { DimensionsComponent } from "./EntityComponents/DimensionsComponent";
 import { EffectComponent } from "./EntityComponents/EffectComponent";
 import { ColliderComponent } from "./EntityComponents/ColliderComponent";
+import { SpeedEffect } from "../systems/Effects/SpeedEffect";
+import { TeleportEffect } from "../systems/Effects/TeleportEffect";
 
 export class Map extends Array<Entity> {
 	constructor(public items: Entity[] = []) {
@@ -25,7 +27,7 @@ export class Map extends Array<Entity> {
 				new PositionComponent({ x: 500, y: 125 }),
 				new DimensionsComponent({ width: 250, height: 250 }),
 				new ColliderComponent("static"),
-				new EffectComponent(["speed"]),
+				new EffectComponent([new SpeedEffect(2)]),
 				new SpriteComponent([{ source: "blueArrow" }]),
 			]),
 			new DefaultEntity("Arrow right 3", [
@@ -41,8 +43,8 @@ export class Map extends Array<Entity> {
 				new SpriteComponent([{ source: "blueTexture" }]),
 			]),
 			new DefaultEntity("Blue wall Bottom left", [
-				new PositionComponent({ x: 0, y: -1500 }),
-				new DimensionsComponent({ width: 1500, height: 1500 }),
+				new PositionComponent({ x: -5000, y: -1500 }),
+				new DimensionsComponent({ width: 6500, height: 1500 }),
 				new ColliderComponent("rigid"),
 				new SpriteComponent([{ source: "blueTexture" }]),
 			]),
@@ -70,66 +72,39 @@ const portalStuff: Entity[] = [
 		new DimensionsComponent({ width: 125, height: 250 }),
 		new ColliderComponent("static"),
 		new SpriteComponent([{ source: "purplePortal" }]),
-		new EffectComponent(["teleport"]),
+		new EffectComponent([new TeleportEffect({ x: 0, y: 0 })]),
 	]),
-	new DefaultEntity("Cobble", [
+	new DefaultEntity("Cobble top portal", [
 		new PositionComponent({ x: 2250, y: -1000 }),
 		new DimensionsComponent({ width: 125, height: 125 }),
-		new ColliderComponent("static"),
+		new ColliderComponent("rigid"),
 		new SpriteComponent([{ source: "cobbleBrickLight" }]),
 	]),
-	new DefaultEntity("Cobble bottom left", [
+	new DefaultEntity("Cobble bottom", [
 		new PositionComponent({ x: 2375, y: -1250 }),
 		new DimensionsComponent({ width: 125, height: 125 }),
-		new ColliderComponent("static"),
+		new ColliderComponent("rigid"),
 		new SpriteComponent([{ source: "cobbleBrickLight" }]),
 	]),
-	new DefaultEntity("Cobble bottom middle", [
-		new PositionComponent({ x: 2500, y: -1250 }),
-		new DimensionsComponent({ width: 125, height: 125 }),
-		new ColliderComponent("static"),
-		new SpriteComponent([{ source: "cobbleBrickLight" }]),
-	]),
-	new DefaultEntity("Cobble bottom right", [
-		new PositionComponent({ x: 2625, y: -1250 }),
-		new DimensionsComponent({ width: 125, height: 125 }),
-		new ColliderComponent("static"),
-		new SpriteComponent([{ source: "cobbleBrickLight" }]),
-	]),
-	new DefaultEntity("Cobble middle left", [
+	new DefaultEntity("Cobble middle", [
 		new PositionComponent({ x: 2375, y: -1125 }),
 		new DimensionsComponent({ width: 125, height: 125 }),
-		new ColliderComponent("static"),
+		new ColliderComponent("rigid"),
 		new SpriteComponent([{ source: "cobbleBrickLight" }]),
 	]),
-	new DefaultEntity("Cobble middle middle", [
-		new PositionComponent({ x: 2500, y: -1125 }),
-		new DimensionsComponent({ width: 125, height: 125 }),
-		new ColliderComponent("static"),
-		new SpriteComponent([{ source: "cobbleBrickLight" }]),
-	]),
-	new DefaultEntity("Cobble middle right", [
-		new PositionComponent({ x: 2625, y: -1125 }),
-		new DimensionsComponent({ width: 125, height: 125 }),
-		new ColliderComponent("static"),
-		new SpriteComponent([{ source: "cobbleBrickLight" }]),
-	]),
-	new DefaultEntity("Cobble top left", [
+	new DefaultEntity("Cobble top", [
 		new PositionComponent({ x: 2375, y: -1000 }),
 		new DimensionsComponent({ width: 125, height: 125 }),
-		new ColliderComponent("static"),
+		new ColliderComponent("rigid"),
 		new SpriteComponent([{ source: "cobbleBrickLight" }]),
 	]),
-	new DefaultEntity("Cobble top middle", [
-		new PositionComponent({ x: 2500, y: -1000 }),
-		new DimensionsComponent({ width: 125, height: 125 }),
-		new ColliderComponent("static"),
-		new SpriteComponent([{ source: "cobbleBrickLight" }]),
-	]),
-	new DefaultEntity("Cobble top right", [
-		new PositionComponent({ x: 2625, y: -1000 }),
-		new DimensionsComponent({ width: 125, height: 125 }),
-		new ColliderComponent("static"),
-		new SpriteComponent([{ source: "cobbleBrickLight" }]),
-	]),
+
+	/** Backgrounds */
+
+	// new DefaultEntity("Cobble background", [
+	// 	new PositionComponent({ x: 2125, y: -1125 }),
+	// 	new DimensionsComponent({ width: 125, height: 125 }),
+	// 	new ColliderComponent("static"),
+	// 	new SpriteComponent([{ source: "cobbleBrick" }]),
+	// ]),
 ];

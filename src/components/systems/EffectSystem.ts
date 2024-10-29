@@ -1,6 +1,5 @@
 import { getComponent } from "../../helpers/getComponent";
 import { Entity, System } from "../../types/ECS";
-import { VelocityComponent } from "../entities/EntityComponents/VelocityComponent";
 import { EffectComponent } from "../entities/EntityComponents/EffectComponent";
 
 export class EffectSystem implements System {
@@ -14,28 +13,10 @@ export class EffectSystem implements System {
 			if (!effectComponent) continue;
 
 			for (const effect of effectComponent.consumers) {
-				switch (effect) {
-					case "teleport":
-						console.log("Teleport entity where? lmao");
-						break;
-
-					case "speed":
-						{
-							// console.log("Speed 2x");
-							// console.log(entity.id);
-							const velocityComponent = getComponent<VelocityComponent>(entity, "velocity");
-							// console.log(entity.components);
-							if (!velocityComponent) break;
-
-							// This wont do much since if you hold A or D the velocity gets limited with the LIMIT.
-							velocityComponent.velocity.x *= 1.175;
-						}
-						break;
-
-					default:
-						break;
-				}
+				// "consume" the effect.
 				effectComponent.removeConsumerEffect(effect);
+
+				effect.execute(entity);
 			}
 		}
 	};

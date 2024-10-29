@@ -6,5 +6,6 @@ export class VelocityComponent implements Component {
 	constructor(
 		public velocity: Vector2,
 		public maxVelocity: Vector2 = { x: Infinity, y: Infinity },
+		public originalMaxVelocity: Vector2 = { x: maxVelocity.x.valueOf(), y: maxVelocity.y.valueOf() },
 	) {}
 }

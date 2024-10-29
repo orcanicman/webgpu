@@ -1,6 +1,6 @@
-import { Component } from "../../../types/ECS";
+import { Component, Entity } from "../../../types/ECS";
 
-export type Effect = "teleport" | "speed";
+export type EffectType = "teleport" | "speed";
 
 export class EffectComponent implements Component {
 	readonly type = "effect";
@@ -29,4 +29,12 @@ export class EffectComponent implements Component {
 		const consumers = this.consumers.filter((compEffect) => compEffect !== effect);
 		this.consumers = consumers;
 	};
+}
+
+/**
+ * Shape of all effect classes
+ */
+export interface Effect {
+	id: EffectType;
+	execute: (entity: Entity) => void;
 }
