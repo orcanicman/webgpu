@@ -1,6 +1,7 @@
 import { getComponent } from "../../helpers/getComponent";
 import { Entity, System } from "../../types/ECS";
-import { EffectComponent, VelocityComponent } from "../entities/EntityComponents";
+import { VelocityComponent } from "../entities/EntityComponents/VelocityComponent";
+import { EffectComponent } from "../entities/EntityComponents/EffectComponent";
 
 export class EffectSystem implements System {
 	initialize = async () => {

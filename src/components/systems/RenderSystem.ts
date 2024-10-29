@@ -3,13 +3,11 @@ import { getComponent } from "../../helpers/getComponent";
 import { QuadGeometry } from "../../helpers/StaticGeometry";
 import { Texture } from "../../utils/Texture";
 import { System, Entity } from "../../types/ECS";
-import {
-	PositionComponent,
-	DimensionsComponent,
-	SpriteComponent,
-	CameraFocusComponent,
-	AnimationComponent,
-} from "../entities/EntityComponents";
+import { CameraFocusComponent } from "../entities/EntityComponents/CameraFocusComponent";
+import { AnimationComponent } from "../entities/EntityComponents/AnimationComponent";
+import { SpriteComponent } from "../entities/EntityComponents/SpriteComponent";
+import { PositionComponent } from "../entities/EntityComponents/PositionComponent";
+import { DimensionsComponent } from "../entities/EntityComponents/DimensionsComponent";
 import { Vector2 } from "../../types/Vector2";
 import { getPositionValues2d } from "../../utils/getDivisionWithRemainder";
 import { TickSpeed } from "../../config/TickSpeed";

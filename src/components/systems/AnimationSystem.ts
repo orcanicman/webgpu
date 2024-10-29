@@ -1,6 +1,6 @@
 import { getComponent } from "../../helpers/getComponent";
 import { Entity, System } from "../../types/ECS";
-import { AnimationComponent } from "../entities/EntityComponents";
+import { AnimationComponent } from "../entities/EntityComponents/AnimationComponent";
 
 export class AnimationSystem implements System {
 	initialize = async () => {

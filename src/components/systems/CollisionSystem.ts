@@ -1,11 +1,9 @@
-import {
-	ColliderComponent,
-	ControllableComponent,
-	DimensionsComponent,
-	EffectComponent,
-	PositionComponent,
-	VelocityComponent,
-} from "../entities/EntityComponents";
+import { VelocityComponent } from "../entities/EntityComponents/VelocityComponent";
+import { PositionComponent } from "../entities/EntityComponents/PositionComponent";
+import { DimensionsComponent } from "../entities/EntityComponents/DimensionsComponent";
+import { ControllableComponent } from "../entities/EntityComponents/ControllableComponent";
+import { EffectComponent } from "../entities/EntityComponents/EffectComponent";
+import { ColliderComponent } from "../entities/EntityComponents/ColliderComponent";
 import { getComponent } from "../../helpers/getComponent";
 import { intersects } from "../../helpers/intersects";
 import { BoundingBox } from "../../types/BoundingBox";

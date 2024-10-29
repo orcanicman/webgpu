@@ -1,9 +1,7 @@
-import {
-	AnimationComponent,
-	ControllableComponent,
-	PositionComponent,
-	VelocityComponent,
-} from "../entities/EntityComponents";
+import { VelocityComponent } from "../entities/EntityComponents/VelocityComponent";
+import { AnimationComponent } from "../entities/EntityComponents/AnimationComponent";
+import { PositionComponent } from "../entities/EntityComponents/PositionComponent";
+import { ControllableComponent } from "../entities/EntityComponents/ControllableComponent";
 import { MovementKeys } from "../../config/MovementKeys";
 import { getComponent } from "../../helpers/getComponent";
 import { Entity, System } from "../../types/ECS";

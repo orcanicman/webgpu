@@ -1,12 +1,10 @@
 import { Entity } from "../../types/ECS";
 import { DefaultEntity } from "./Entities";
-import {
-	PositionComponent,
-	DimensionsComponent,
-	ColliderComponent,
-	SpriteComponent,
-	EffectComponent,
-} from "./EntityComponents";
+import { SpriteComponent } from "./EntityComponents/SpriteComponent";
+import { PositionComponent } from "./EntityComponents/PositionComponent";
+import { DimensionsComponent } from "./EntityComponents/DimensionsComponent";
+import { EffectComponent } from "./EntityComponents/EffectComponent";
+import { ColliderComponent } from "./EntityComponents/ColliderComponent";
 
 export class Map extends Array<Entity> {
 	constructor(public items: Entity[] = []) {

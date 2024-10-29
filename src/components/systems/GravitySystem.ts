@@ -1,4 +1,5 @@
-import { GravityComponent, VelocityComponent } from "../entities/EntityComponents";
+import { VelocityComponent } from "../entities/EntityComponents/VelocityComponent";
+import { GravityComponent } from "../entities/EntityComponents/GravityComponent";
 import { GRAVITY } from "../../config/GRAVITY";
 import { getComponent } from "../../helpers/getComponent";
 import { Entity, System } from "../../types/ECS";

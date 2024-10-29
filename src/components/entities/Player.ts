@@ -1,17 +1,15 @@
 import { playerAnimationSheetDescriptor } from "../../helpers/SpriteSheetDescriptors";
 import { DefaultEntity } from "./Entities";
-import {
-	PositionComponent,
-	DimensionsComponent,
-	VelocityComponent,
-	ControllableComponent,
-	GravityComponent,
-	ColliderComponent,
-	CameraFocusComponent,
-	SpriteComponent,
-	AnimationComponent,
-	EffectComponent,
-} from "./EntityComponents";
+import { VelocityComponent } from "./EntityComponents/VelocityComponent";
+import { CameraFocusComponent } from "./EntityComponents/CameraFocusComponent";
+import { AnimationComponent } from "./EntityComponents/AnimationComponent";
+import { SpriteComponent } from "./EntityComponents/SpriteComponent";
+import { PositionComponent } from "./EntityComponents/PositionComponent";
+import { GravityComponent } from "./EntityComponents/GravityComponent";
+import { DimensionsComponent } from "./EntityComponents/DimensionsComponent";
+import { ControllableComponent } from "./EntityComponents/ControllableComponent";
+import { EffectComponent } from "./EntityComponents/EffectComponent";
+import { ColliderComponent } from "./EntityComponents/ColliderComponent";
 
 export class Player extends DefaultEntity {
 	constructor(id: string) {
