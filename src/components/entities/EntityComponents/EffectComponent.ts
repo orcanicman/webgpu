@@ -36,5 +36,6 @@ export class EffectComponent implements Component {
  */
 export interface Effect {
 	id: EffectType;
+	isActive?: boolean;
 	execute: (entity: Entity) => void;
 }
