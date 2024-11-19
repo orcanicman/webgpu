@@ -3,10 +3,15 @@ Done : ✅
 To do: ❌
  -->
 
+```
+Everything is sorted by priority in the tables.
+```
+
 # TODO - Engine:
 
 | Item               | Done? |
 | ------------------ | ----- |
+| Lighting / shading | ❌    |
 | "Camera Dead-zone" | ❌    |
 
 # TODO - Game engine design:
@@ -31,9 +36,5 @@ To do: ❌
 
 # TODO - Assets:
 
-| Item                        | Done? |
-| --------------------------- | ----- |
-| Player testmodel            | ✅    |
-| Player testmodel animations | ✅    |
-| Player model prototype      | ❌    |
-| Player animations           | ❌    |
+| Item | Done? |
+| ---- | ----- |
